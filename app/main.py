@@ -5,7 +5,7 @@ app = FastAPI()
 
 @app.get("/")
 def home_page():
-    return {"message": "Привет, Хабр!"}
+    return {"message": "Сервер работает!"}
 
 
 app.include_router(router_products)

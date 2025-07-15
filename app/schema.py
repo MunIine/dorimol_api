@@ -13,3 +13,13 @@ class SProduct(BaseModel):
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")
     order_count: int = Field(..., description="Количество заказов")
+    category: str = Field(..., description="Категрия")
+    vendors: list[str] = Field(..., description="Список поставщиков")
+    feedbacks: list["SFeedback"] = Field(..., description="Список отзывов")
+
+class SFeedback(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    product_id: str
+    rating: int
+    comment: str

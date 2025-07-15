@@ -28,7 +28,6 @@ class Product(Base):
 
     vendors: Mapped[list["Vendor"]] = relationship("Vendor", secondary=product_vendors, back_populates="products")
     category: Mapped["Category"] = relationship("Category", back_populates="products")
-    feedbacks: Mapped[list["Feedback"]] = relationship("Feedback", back_populates="product")
 
     def __str__(self):
         return f"Product(id={self.id}, name={self.name}, price={self.price}, unit={self.unit})"
@@ -36,13 +35,25 @@ class Product(Base):
     def __repr__(self):
         return f"<Product(id={self.id}, name={self.name})>"
 
+    def toDict(self):
+        return {
+            "id": self.id,
+            "category_id": self.category_id,
+            "name": self.name,
+            "description": self.description,
+            "image_url": self.image_url,
+            "price": self.price,
+            "unit": self.unit,
+            "stock": self.stock,
+            "status": self.status,
+            "order_count": self.order_count,
+        }
+
 class Feedback(Base):
     id: Mapped[int_pk]
     product_id: Mapped[str] = mapped_column(ForeignKey("products.id"), nullable=False)
     rating: Mapped[int] = mapped_column(nullable=False)
     comment: Mapped[str] = mapped_column(Text, nullable=False)
-
-    product: Mapped[Product] = relationship("Product", back_populates="feedbacks")
 
     def __str__(self):
         return f"Feedback(id={self.id}, product_id={self.product_id}, rating={self.rating})"
@@ -65,6 +76,7 @@ class Vendor(Base):
 class Category(Base):
     id: Mapped[int_pk]
     name: Mapped[str_uniq]
+    image_url: Mapped[str] = mapped_column(nullable=False)
 
     products: Mapped[list[Product]] = relationship("Product", back_populates="category")
 

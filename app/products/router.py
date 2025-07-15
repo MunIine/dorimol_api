@@ -9,6 +9,6 @@ router = APIRouter(prefix='/products', tags=['Товары'])
 async def get_all_products(request_body: RBProduct = Depends()):
     return await ProductDAO.find_all(**request_body.to_dict())
 
-@router.get("/{id_or_name}", summary="Получить товар по id или имени", response_model=SProduct|None)
+@router.get("/{id_or_name}", summary="Получить товар по id или имени", response_model=SProduct)
 async def get_product_by_id_or_name(id_or_name: str):
     return await ProductDAO.find_by_id_or_name(id_or_name)
