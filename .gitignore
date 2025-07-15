@@ -1,0 +1,7 @@
+__pycache__/
+pgdata/
+
+.env
+*.env
+
+docker-compose.yml
