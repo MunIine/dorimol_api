@@ -1,4 +1,3 @@
-from enum import Enum
 from sqlalchemy import Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -29,6 +28,12 @@ class Product(Base):
     vendors: Mapped[list["Vendor"]] = relationship("Vendor", secondary=product_vendors, back_populates="products")
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     feedbacks: Mapped[list["Feedback"]] = relationship("Feedback", back_populates="product")
+    
+    def __str__(self):
+        return f"Product(id={self.id}, name={self.name}, price={self.price}, unit={self.unit})"
+
+    def __repr__(self):
+        return f"<Product(id={self.id}, name={self.name})>"
 
 class Feedback(Base):
     id: Mapped[int_pk]
@@ -38,6 +43,12 @@ class Feedback(Base):
 
     product: Mapped[Product] = relationship("Product", back_populates="feedbacks")
 
+    def __str__(self):
+        return f"Feedback(id={self.id}, product_id={self.product_id}, rating={self.rating})"
+
+    def __repr__(self):
+        return f"<Feedback(id={self.id}, product_id={self.product_id})>"
+
 class Vendor(Base):
     id: Mapped[int_pk]
     name: Mapped[str_uniq]
@@ -45,10 +56,10 @@ class Vendor(Base):
     products: Mapped[list[Product]] = relationship("Product", secondary=product_vendors, back_populates="vendors")
 
     def __str__(self):
-        return f"{self.__class__.__name__}(id={self.id}, name={self.name!r})"
+        return f"Vendor(id={self.id}, name={self.name})"
 
     def __repr__(self):
-        return str(self)
+        return f"<Vendor(id={self.id}, name={self.name})>"
 
 class Category(Base):
     id: Mapped[int_pk]
@@ -57,7 +68,7 @@ class Category(Base):
     products: Mapped[list[Product]] = relationship("Product", back_populates="category")
 
     def __str__(self):
-        return f"{self.__class__.__name__}(id={self.id}, name={self.name!r})"
+        return f"Category(id={self.id}, name={self.name})"
 
     def __repr__(self):
-        return str(self)
+        return f"<Category(id={self.id}, name={self.name})>"
