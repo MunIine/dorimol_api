@@ -11,7 +11,7 @@ class ProductDAO(BaseDAO):
 
     @classmethod
     async def search(cls, arg: str | None = None, category_id: int | None = None, sorting: str | None = None):
-        additional_filter_data = {"category_id": category_id, "sorting": sorting}
+        additional_filter_data = {"category_id": category_id}
         additional_filter = [getattr(cls.model, key) == value for key, value in additional_filter_data.items() if value is not None]
 
         async with async_session_maker() as session:
@@ -48,7 +48,7 @@ class ProductDAO(BaseDAO):
             return products
 
     @classmethod
-    async def search_all(cls, id: str):
+    async def search_full(cls, id: str):
         async with async_session_maker() as session:
             product_query = select(cls.model).options(joinedload(cls.model.vendors))
             product_query = product_query.filter_by(id=id)

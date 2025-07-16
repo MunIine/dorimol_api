@@ -15,4 +15,4 @@ async def get_products_by_id_or_name(request_body: RBProductsByIdOrName = Depend
 
 @router.get("/product/{id}", summary="Получить всю информацию о товаре по id", response_model=SProductAll)
 async def get_product_by_id(id: str):
-    return await ProductDAO.search_all(id)
+    return await ProductDAO.search_full(id)

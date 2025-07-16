@@ -1,6 +1,7 @@
 from sqlalchemy import Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from app.constants import ProductConst
 from app.database import Base, str_uniq, int_pk
 
 product_vendors = Table(
@@ -9,11 +10,6 @@ product_vendors = Table(
     Column("product_id", ForeignKey("products.id"), primary_key=True),
     Column("vendor_id", ForeignKey("vendors.id"), primary_key=True)
 )
-class ProductConst():
-    units = ["кг", "шт"]
-    statuses = ["default", "new", "sale"]
-    default_status = "default"
-
 class Product(Base):
     id: Mapped[str] = mapped_column(String(8), primary_key=True, autoincrement=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
@@ -21,10 +17,12 @@ class Product(Base):
     description: Mapped[str] = mapped_column(Text, nullable=True)
     image_url: Mapped[str] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
+    wholesale_price: Mapped[float] = mapped_column(nullable=False)
     unit: Mapped[str] = mapped_column(sqlEnum(*ProductConst.units, name="unit"), nullable=False)
     stock: Mapped[float] = mapped_column(nullable=False, server_default=text("0"))
     status: Mapped[str] = mapped_column(sqlEnum(*ProductConst.statuses, name="status"), nullable=False, server_default=text(f"\'{ProductConst.default_status}\'"))
     order_count: Mapped[int] = mapped_column(nullable=False, server_default=text("0"))
+    rating: Mapped[float] = mapped_column(nullable=True)
 
     vendors: Mapped[list["Vendor"]] = relationship("Vendor", secondary=product_vendors, back_populates="products")
     category: Mapped["Category"] = relationship("Category", back_populates="products")
