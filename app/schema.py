@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
@@ -38,6 +39,7 @@ class SCategory(BaseModel):
 class SFeedback(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    product_id: str
     rating: int
     comment: str
+    updated_at: datetime = Field(..., description="Дата обновления отзыва в формате")
+    created_at: datetime = Field(..., description="Дата создания отзыва в формате")
