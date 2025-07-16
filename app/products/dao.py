@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
+from app.constants import SortingProductConst
 from app.database import async_session_maker
 from app.dao import BaseDAO
 from app.models import Feedback, Product
@@ -10,7 +11,7 @@ class ProductDAO(BaseDAO):
     model = Product
 
     @classmethod
-    async def search(cls, arg: str | None = None, category_id: int | None = None, sorting: str | None = None):
+    async def search(cls, arg: str | None = None, category_id: int | None = None, sorting: str = SortingProductConst.default):
         additional_filter_data = {"category_id": category_id}
         additional_filter = [getattr(cls.model, key) == value for key, value in additional_filter_data.items() if value is not None]
 
@@ -19,6 +20,8 @@ class ProductDAO(BaseDAO):
                 cls.model
             ).filter(
                 *additional_filter
+            ).order_by(
+                SortingProductConst[sorting].sort_expression(Product) if sorting in SortingProductConst.__members__ else SortingProductConst.default.value
             )
             if arg is not None:
                 if arg.isdigit():

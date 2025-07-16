@@ -12,6 +12,7 @@ class SProduct(BaseModel):
     unit: str = Field(..., description="Единица измерения: кг, шт...")
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")
+    order_count: int = Field(..., description="Количество заказов")
     rating: float | None = Field(..., description="Средняя оценка продукта")
 
 class SProductAll(BaseModel):
