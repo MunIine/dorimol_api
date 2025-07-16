@@ -6,6 +6,18 @@ class SProduct(BaseModel):
     id: str = Field(..., description="Уникальный идентификатор продукта", min_length=8, max_length=8)
     category_id: int = Field(..., description="ID категории")
     name: str = Field(..., description="Название")
+    image_url: str = Field(..., description="URL изображения продукта на сервере")
+    price: float = Field(..., description="Цена")
+    unit: str = Field(..., description="Единица измерения: кг, шт...")
+    stock: float = Field(..., description="Количество на складе")
+    status: str = Field(..., description="Статус: default, new, sale...")
+    rating: float | None = Field(..., description="Средняя оценка продукта")
+
+class SProductAll(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str = Field(..., description="Уникальный идентификатор продукта", min_length=8, max_length=8)
+    category_id: int = Field(..., description="ID категории")
+    name: str = Field(..., description="Название")
     description: Optional[str] = Field(None, description="Описание")
     image_url: str = Field(..., description="URL изображения продукта на сервере")
     price: float = Field(..., description="Цена")
@@ -13,7 +25,7 @@ class SProduct(BaseModel):
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")
     order_count: int = Field(..., description="Количество заказов")
-    category: str = Field(..., description="Категрия")
+    rating: float | None = Field(..., description="Средняя оценка продукта")
     vendors: list[str] = Field(..., description="Список поставщиков")
     feedbacks: list["SFeedback"] = Field(..., description="Список отзывов")
 
