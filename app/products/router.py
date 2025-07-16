@@ -5,7 +5,7 @@ from app.schema import SProduct
 
 router = APIRouter(prefix='/products', tags=['Товары'])
 
-@router.get("/", summary="Получить все товары", response_model=list[SProduct])
+@router.get("/", summary="Получить все товары")
 async def get_all_products(request_body: RBProduct = Depends()):
     return await ProductDAO.find_all(**request_body.to_dict())
 

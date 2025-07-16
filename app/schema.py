@@ -17,6 +17,11 @@ class SProduct(BaseModel):
     vendors: list[str] = Field(..., description="Список поставщиков")
     feedbacks: list["SFeedback"] = Field(..., description="Список отзывов")
 
+class SCategory(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = Field(..., description="ID категории")
+    name: str = Field(..., description="Название категории")
+    image_url: str = Field(..., description="URL изображения категории на сервере")
 class SFeedback(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
