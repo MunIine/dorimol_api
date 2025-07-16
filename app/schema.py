@@ -21,6 +21,7 @@ class SProductAll(BaseModel):
     description: Optional[str] = Field(None, description="Описание")
     image_url: str = Field(..., description="URL изображения продукта на сервере")
     price: float = Field(..., description="Цена")
+    wholesale_price: float = Field(..., description="Цена")
     unit: str = Field(..., description="Единица измерения: кг, шт...")
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")

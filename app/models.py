@@ -41,10 +41,12 @@ class Product(Base):
             "description": self.description,
             "image_url": self.image_url,
             "price": self.price,
+            "wholesale_price": self.wholesale_price,
             "unit": self.unit,
             "stock": self.stock,
             "status": self.status,
             "order_count": self.order_count,
+            "rating": self.rating,
         }
 
 class Feedback(Base):
