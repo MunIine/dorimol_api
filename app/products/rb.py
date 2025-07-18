@@ -4,16 +4,19 @@ class RBProductsByCategory:
         self.sorting = sorting
 
     def to_dict(self) -> dict:
-        data = {'category_id': self.category_id, 'sorting': self.sorting}
-        filtered_data = {key: value for key, value in data.items() if value is not None}
-        return filtered_data
-class RBProductsByIdOrName:
-    def __init__(self, id_or_name: str, category_id: int | None = None, sorting: str | None = None):
-        self.arg = id_or_name
+        return {'category_id': self.category_id, 'sorting': self.sorting}
+    
+class RBProducts:
+    def __init__(self, id: str | None = None, name: str | None = None, category_id: int | None = None, sorting: str | None = None):
+        self.id = id
+        self.name = name
         self.category_id = category_id
         self.sorting = sorting
 
     def to_dict(self) -> dict:
-        data = {'arg': self.arg, 'category_id': self.category_id, 'sorting': self.sorting}
-        filtered_data = {key: value for key, value in data.items() if value is not None}
-        return filtered_data
+        return {
+            'id': self.id,
+            'name': self.name,
+            'category_id': self.category_id,
+            'sorting': self.sorting
+        }

@@ -1,19 +1,29 @@
 from fastapi import HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from app.constants import SortingProductConst
 from app.database import async_session_maker
-from app.dao import BaseDAO
 from app.models import Feedback, Product
 
 
-class ProductDAO(BaseDAO):
+class ProductDAO():
     model = Product
 
     @classmethod
-    async def search(cls, arg: str | None = None, category_id: int | None = None, sorting: str = SortingProductConst.default):
-        additional_filter_data = {"category_id": category_id}
-        additional_filter = [getattr(cls.model, key) == value for key, value in additional_filter_data.items() if value is not None]
+    async def search(cls, **filter_by):
+        sorting: str = SortingProductConst.default
+        additional_filter = []
+        
+        for key, value in filter_by.items():
+            if value is not None:
+                if key == "name":
+                    additional_filter.append(cls.model.name.ilike(f"%{value}%"))
+                    continue
+                if key == "sorting":
+                    sorting = value
+                    continue
+
+                additional_filter.append(getattr(cls.model, key) == value)
 
         async with async_session_maker() as session:
             product_query = select(
@@ -23,18 +33,13 @@ class ProductDAO(BaseDAO):
             ).order_by(
                 SortingProductConst[sorting].sort_expression(Product) if sorting in SortingProductConst.__members__ else SortingProductConst.default.value
             )
-            if arg is not None:
-                if arg.isdigit():
-                    product_query.filter(cls.model.id==arg)
-                else:
-                    product_query = product_query.filter(cls.model.name.ilike(f"%{arg}%"))
 
             product_result = await session.execute(product_query)
             product_info = product_result.unique().scalars().all()
             if not product_info:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Product with argument '{arg}' not found"
+                    detail=f"Product with argument '{filter_by}' not found"
                 )
             
             return product_info
