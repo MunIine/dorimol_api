@@ -31,6 +31,7 @@ class SProductAll(BaseModel):
     rating: float | None = Field(..., description="Средняя оценка продукта")
     vendors: list[str] = Field(..., description="Список поставщиков")
     feedbacks: list["SFeedback"] = Field(..., description="Список отзывов")
+    similars: list["SProduct"] = Field(..., description="Список похожих товаров")
 
 class SCategory(BaseModel):
     model_config = ConfigDict(from_attributes=True)

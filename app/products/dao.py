@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.orm import joinedload
 from app.constants import SortingProductConst
 from app.database import async_session_maker
@@ -18,6 +18,9 @@ class ProductDAO():
             if value is not None:
                 if key == "name":
                     additional_filter.append(cls.model.name.ilike(f"%{value}%"))
+                    continue
+                if key == "similar":
+                    additional_filter.append(and_(cls.model.id.ilike(f"{value[0:4]}%"), cls.model.id != value))
                     continue
                 if key == "sorting":
                     sorting = value
@@ -60,7 +63,11 @@ class ProductDAO():
             feedback_query = select(Feedback).filter_by(product_id=product_info.id).limit(3)
             feedback_result = await session.execute(feedback_query)
 
+            similar_query = select(cls.model).filter(and_(cls.model.id.ilike(f"{id[0:4]}%"), cls.model.id != id)).limit(3)
+            similar_result = await session.execute(similar_query)
+
             product_data = product_info.toDict()
             product_data["vendors"] = [vendor.name for vendor in product_info.vendors]
             product_data["feedbacks"] = feedback_result.scalars().all()
+            product_data["similars"] = similar_result.scalars().all()
             return product_data

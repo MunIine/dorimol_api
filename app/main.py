@@ -16,3 +16,4 @@ app.include_router(router_categories)
 app.include_router(router_feedbacks)
 
 app.mount("/media/categories", StaticFiles(directory="app/media/categories/"), name="categories")
+app.mount("/media/products", StaticFiles(directory="app/media/products/"), name="products")
