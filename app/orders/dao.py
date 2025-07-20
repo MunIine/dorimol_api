@@ -1,12 +1,13 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.constants import PriceConst
+from app.dao import BaseDAO
 from app.database import async_session_maker
 from app.models import Order, OrderItem, Product
 from app.schema import SOrderAdd
 from sqlalchemy.exc import SQLAlchemyError
 
-class OrdersDAO:
+class OrdersDAO(BaseDAO):
     model = Order
 
     @classmethod
@@ -50,6 +51,7 @@ class OrdersDAO:
 
                 session.add(order)
                 try:
+                    await session.flush()
                     await session.commit()
                 except SQLAlchemyError as e:
                     await session.rollback()
