@@ -40,8 +40,20 @@ class SCategory(BaseModel):
     image_url: str = Field(..., description="URL изображения категории на сервере")
 class SFeedback(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: int
-    rating: int
-    comment: str
-    updated_at: datetime = Field(..., description="Дата обновления отзыва в формате")
-    created_at: datetime = Field(..., description="Дата создания отзыва в формате")
+    id: int = Field(..., description="ID отзыва")
+    rating: int = Field(..., description="Оценка")
+    comment: str = Field(..., description="Комментарий")
+    updated_at: datetime = Field(..., description="Дата обновления отзыва")
+    created_at: datetime = Field(..., description="Дата создания отзыва")
+
+class SOrderAdd(BaseModel):
+    full_name: str = Field(..., description="ФИО заказчика")
+    phone_number: str = Field(..., description="Телефон заказчика")
+    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    comment: Optional[str] = Field(None, description="Комментарий к заказу")
+    items: list["SOrderItemAdd"] = Field(..., description="Список товаров в заказе")
+
+class SOrderItemAdd(BaseModel):
+    product_id: str = Field(..., description="ID продукта")
+    quantity: int = Field(..., description="Количество")
+    item_price: float = Field(..., description="Цена за единицу товара")

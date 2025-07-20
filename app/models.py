@@ -1,6 +1,6 @@
 from sqlalchemy import Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import relationship, Mapped, mapped_column, declared_attr
 from app.constants import ProductConst
 from app.database import Base, str_uniq, int_pk
 
@@ -85,3 +85,27 @@ class Category(Base):
 
     def __repr__(self):
         return f"<Category(id={self.id}, name={self.name})>"
+
+class Order(Base):
+    id: Mapped[int_pk]
+    full_name: Mapped[str] = mapped_column(nullable=False)
+    phone_number: Mapped[str] = mapped_column(nullable=False)
+    delivery_address: Mapped[str] = mapped_column(Text, nullable=True)
+    comment: Mapped[str] = mapped_column(Text, nullable=True)
+    total_price: Mapped[float] = mapped_column(nullable=False)
+
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
+class OrderItem(Base):
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return "order_items"
+
+    id: Mapped[int_pk]
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
+    product_id: Mapped[str] = mapped_column(ForeignKey("products.id"), nullable=False)
+    quantity: Mapped[int] = mapped_column(nullable=False)
+    item_price: Mapped[float] = mapped_column(nullable=False)
+
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product")
