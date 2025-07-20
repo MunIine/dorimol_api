@@ -18,6 +18,7 @@ class Product(Base):
     image_url: Mapped[str] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
     wholesale_price: Mapped[float] = mapped_column(nullable=False)
+    wholesale_start_quantity: Mapped[float] = mapped_column(nullable=False)
     unit: Mapped[str] = mapped_column(sqlEnum(*ProductConst.units, name="unit"), nullable=False)
     stock: Mapped[float] = mapped_column(nullable=False, server_default=text("0"))
     status: Mapped[str] = mapped_column(sqlEnum(*ProductConst.statuses, name="status"), nullable=False, server_default=text(f"\'{ProductConst.default_status}\'"))
@@ -42,6 +43,7 @@ class Product(Base):
             "image_url": self.image_url,
             "price": self.price,
             "wholesale_price": self.wholesale_price,
+            "wholesale_start_quantity": self.wholesale_start_quantity,
             "unit": self.unit,
             "stock": self.stock,
             "status": self.status,
@@ -104,7 +106,7 @@ class OrderItem(Base):
     id: Mapped[int_pk]
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[str] = mapped_column(ForeignKey("products.id"), nullable=False)
-    quantity: Mapped[int] = mapped_column(nullable=False)
+    quantity: Mapped[float] = mapped_column(nullable=False)
     item_price: Mapped[float] = mapped_column(nullable=False)
 
     order = relationship("Order", back_populates="items")

@@ -9,6 +9,8 @@ class SProduct(BaseModel):
     name: str = Field(..., description="Название")
     image_url: str = Field(..., description="URL изображения продукта на сервере")
     price: float = Field(..., description="Цена")
+    wholesale_price: float = Field(..., description="Оптовая цена")
+    wholesale_start_quantity: float = Field(..., description="Количество товаров для опта")
     unit: str = Field(..., description="Единица измерения: кг, шт...")
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")
@@ -23,7 +25,8 @@ class SProductAll(BaseModel):
     description: Optional[str] = Field(None, description="Описание")
     image_url: str = Field(..., description="URL изображения продукта на сервере")
     price: float = Field(..., description="Цена")
-    wholesale_price: float = Field(..., description="Цена")
+    wholesale_price: float = Field(..., description="Оптовая цена")
+    wholesale_start_quantity: float = Field(..., description="Количество товаров для опта")
     unit: str = Field(..., description="Единица измерения: кг, шт...")
     stock: float = Field(..., description="Количество на складе")
     status: str = Field(..., description="Статус: default, new, sale...")
@@ -55,5 +58,5 @@ class SOrderAdd(BaseModel):
 
 class SOrderItemAdd(BaseModel):
     product_id: str = Field(..., description="ID продукта")
-    quantity: int = Field(..., description="Количество")
+    quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
