@@ -10,8 +10,9 @@ def send_order_email(order: Order):
 Номер телефона: {order.phone_number}
 """
     if order.delivery_address is not None:
-        text += f'Адрес доставки: {order.delivery_address}\n\nТовары:'
+        text += f'Адрес доставки: {order.delivery_address}\n'
 
+    text += "\nТовары:"
     for product in order.items:
         text += f'\nID: {product.product_id}, Количество: {product.quantity}, Цена: {product.item_price}'
 

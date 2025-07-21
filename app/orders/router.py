@@ -5,7 +5,7 @@ from app.schema import SOrderAdd
 
 router = APIRouter(prefix='/orders', tags=['Заказы'])
 
-@router.post(path="/add/")
+@router.post(path="/add")
 async def add_order(order: SOrderAdd):
     check = await OrdersDAO.add_order(order)
     if check:
