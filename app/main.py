@@ -19,3 +19,15 @@ app.include_router(router_orders)
 
 app.mount("/media/categories", StaticFiles(directory="app/media/categories/"), name="categories")
 app.mount("/media/products", StaticFiles(directory="app/media/products/"), name="products")
+
+
+
+### ДЛЯ DEBUG ЧЕРЕЗ БРАУЗЕР
+# from fastapi.middleware.cors import CORSMiddleware
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # или ["http://localhost:3000"]
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
