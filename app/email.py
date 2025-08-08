@@ -1,6 +1,6 @@
 from datetime import timedelta
 import requests
-from app.config import get_email_api_key
+from app.config import get_email_api_key, get_email_from, get_email_to
 from app.models import Order
 
 def send_order_email(order: Order):
@@ -22,8 +22,8 @@ def send_order_email(order: Order):
           "https://api.mailgun.net/v3/sandbox29a24eb4cf7c4c0bbbc712cb2722265f.mailgun.org/messages",
           auth=("api", get_email_api_key()),
           data={
-            "from": "Orders email <postmaster@sandbox29a24eb4cf7c4c0bbbc712cb2722265f.mailgun.org>",
-            "to": "EcoBaza <zakaz.ecobaza@gmail.com>",
+            "from": f"Orders email <{get_email_from()}>",
+            "to": f"EcoBaza <{get_email_to()}>",
               "subject": f"Заказ #{order.id}",
               "text": text
             }

@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     EMAIL_API_KEY: str
+    EMAIL_FROM: str
+    EMAIL_TO: str
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
     )
@@ -23,3 +25,9 @@ def get_db_url():
 
 def get_email_api_key():
     return settings.EMAIL_API_KEY
+
+def get_email_from():
+    return settings.EMAIL_FROM
+
+def get_email_to():
+    return settings.EMAIL_TO
