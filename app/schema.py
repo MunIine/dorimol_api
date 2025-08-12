@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional
+from typing import Any, Optional
 
 class SProduct(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -60,3 +60,7 @@ class SOrderItemAdd(BaseModel):
     product_id: str = Field(..., description="ID продукта")
     quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
+
+class SConfig(BaseModel):
+    id: str = Field(..., description="Уникальный идентификатор конфигурации")
+    value: Any = Field(..., description="Значение конфигурации")
