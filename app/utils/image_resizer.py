@@ -71,22 +71,27 @@ def strip_metadata_save_webp(img, out_buffer, quality, method=6, icc_profile=Non
 def compress_image(input_path, output_path,
                    width, height, max_kb,
                    mode, bg, min_quality,
-                   keep_orientation):
+                   keep_orientation, no_resize):
 
     img, icc_profile = open_image(input_path)
 
     src_w, src_h = img.size
 
-    if keep_orientation:
-        # Если ширина исходника >= высоты — размер не меняем,
-        # иначе меняем местами width и height
-        if src_w >= src_h:
-            target_w, target_h = width, height
+    if not no_resize:
+        if keep_orientation:
+            # Если ширина исходника >= высоты — размер не меняем,
+            # иначе меняем местами width и height
+            if src_w >= src_h:
+                target_w, target_h = width, height
+            else:
+                target_w, target_h = height, width
         else:
-            target_w, target_h = height, width
+            # Строго по заданным размерам
+            target_w, target_h = width, height
+
     else:
-        # Строго по заданным размерам
-        target_w, target_h = width, height
+        # Не меняем размеры, используем исходные
+        target_w, target_h = src_w, src_h
 
     if mode == "fill":
         prepared = resize_fill(img, target_w, target_h)
@@ -152,8 +157,8 @@ def compress_image(input_path, output_path,
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("input", help="input image path")
-    p.add_argument("output", help="output webp path")
+    p.add_argument("input", help="input image path or folder")
+    p.add_argument("output", nargs="?", default=None, help="output folder (optional)")
     p.add_argument("--mode", choices=["fill","fit"], default="fill")
     p.add_argument("--width", type=int, default=600)
     p.add_argument("--height", type=int, default=800)
@@ -162,15 +167,34 @@ def parse_args():
                    help="background RGB for fit mode, e.g. 255,255,255")
     p.add_argument("--keep-orientation", action="store_true",
                    help="Keep orientation: change width and height by places")
+    p.add_argument("--no-resize", action="store_true",
+               help="Save old sizes.")
     return p.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
     bg = tuple(int(x) for x in args.bg.split(","))
-    ok = compress_image(args.input, args.output,
-                        width=args.width, height=args.height,
-                        max_kb=args.maxkb, mode=args.mode, bg=bg,
-                        keep_orientation=args.keep_orientation,
-                        min_quality=20)
-    if not ok:
-        sys.exit(2)
+
+    def process_one(input_path, output_dir):
+        fname = os.path.splitext(os.path.basename(input_path))[0] + ".webp"
+        if output_dir:
+            out_path = os.path.join(output_dir, fname)
+        else:
+            out_path = os.path.join(os.getcwd(), fname)
+        ok = compress_image(input_path, out_path,
+                            width=args.width, height=args.height,
+                            max_kb=args.maxkb, mode=args.mode, bg=bg,
+                            keep_orientation=args.keep_orientation,
+                            min_quality=20, no_resize=args.no_resize)
+        if not ok:
+            sys.exit(2)
+
+    if os.path.isdir(args.input):
+        # Папка: обработать все изображения
+        input_files = [os.path.join(args.input, f) for f in os.listdir(args.input)
+                      if f.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".webp"))]
+        for f in input_files:
+            process_one(f, args.output)
+    else:
+        # Файл: обработать один
+        process_one(args.input, args.output)
