@@ -19,8 +19,8 @@ app.include_router(router_feedbacks)
 app.include_router(router_orders)
 app.include_router(router_configs)
 
-app.mount("/media/categories", StaticFiles(directory="app/media/categories/"), name="categories")
-app.mount("/media/products", StaticFiles(directory="app/media/products/"), name="products")
+app.mount("/media/categories", StaticFiles(directory="media/categories/"), name="categories")
+app.mount("/media/products", StaticFiles(directory="media/products/"), name="products")
 
 
 
