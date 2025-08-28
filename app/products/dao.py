@@ -63,7 +63,7 @@ class ProductDAO():
             feedback_query = select(Feedback).filter_by(product_id=product_info.id).limit(3)
             feedback_result = await session.execute(feedback_query)
 
-            similar_query = select(cls.model).filter(and_(cls.model.id.ilike(f"{id[0:4]}%"), cls.model.id != id)).limit(3)
+            similar_query = select(cls.model).filter(and_(cls.model.id.ilike(f"{id[0:4]}%"), cls.model.id != id, cls.model.enabled == True)).limit(3)
             similar_result = await session.execute(similar_query)
 
             product_data = product_info.toDict()
