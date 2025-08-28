@@ -12,7 +12,7 @@ class ProductDAO():
     @classmethod
     async def search(cls, **filter_by):
         sorting: str = SortingProductConst.default
-        additional_filter = []
+        additional_filter = [getattr(cls.model, "enabled") == True]
         
         for key, value in filter_by.items():
             if value is not None:
@@ -50,7 +50,7 @@ class ProductDAO():
     @classmethod
     async def search_full(cls, id: str):
         async with async_session_maker() as session:
-            product_query = select(cls.model).options(joinedload(cls.model.vendors))
+            product_query = select(cls.model).filter(getattr(cls.model, "enabled") == True).options(joinedload(cls.model.vendors))
             product_query = product_query.filter_by(id=id)
             product_result = await session.execute(product_query)
             product_info = product_result.unique().scalar_one_or_none()

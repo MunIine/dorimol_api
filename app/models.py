@@ -23,6 +23,7 @@ class Product(Base):
     stock: Mapped[float] = mapped_column(nullable=False, server_default=text("0"))
     status: Mapped[str] = mapped_column(sqlEnum(*ProductConst.statuses, name="status"), nullable=False, server_default=text(f"\'{ProductConst.default_status}\'"))
     order_count: Mapped[int] = mapped_column(nullable=False, server_default=text("0"))
+    enabled: Mapped[bool] = mapped_column(nullable=False, server_default=text("true"))
     rating: Mapped[float] = mapped_column(nullable=True)
 
     vendors: Mapped[list["Vendor"]] = relationship("Vendor", secondary=product_vendors, back_populates="products")
