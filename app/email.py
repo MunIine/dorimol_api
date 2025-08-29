@@ -1,22 +1,36 @@
 from datetime import timedelta
 import requests
+from sqlalchemy import select
 from app.config import get_email_api_key, get_email_from, get_email_to
-from app.models import Order
+from app.database import async_session_maker
+from app.models import Order, Product
 
-def send_order_email(order: Order):
-    text =f"""Оформлен заказ #{order.id} на сумму {order.total_price}Р в {(order.created_at+timedelta(hours=3)).strftime("%H:%M:%S %d.%m.%Y")}\n
-ФИО: {order.full_name}
-Номер телефона: {order.phone_number}
+async def send_order_email(order: Order):
+    text =f"""Заказ #{order.id}\nДата и время: {(order.created_at+timedelta(hours=3)).strftime("%d.%m.%Y %H:%M")}\n
+Клиент: {order.full_name}
+Телефон: {order.phone_number}
 """
     if order.delivery_address is not None:
-        text += f'Адрес доставки: {order.delivery_address}\n'
+        text += f'Адрес: {order.delivery_address}\n'
 
     if order.comment is not None:
-        text += f'Комментарий сборщику: {order.comment}\n'
+        text += f'Комментарий: {order.comment}\n'
+
+    async with async_session_maker() as session:
+        product_ids = [item.product_id for item in order.items]
+
+        query = select(Product.name).where(Product.id.in_(product_ids))
+        result = await session.execute(query)
+        product_names = {product_ids[id]: name for id, name in enumerate(result.scalars().all())}
+
+        query = select(Product.unit).where(Product.id.in_(product_ids))
+        result = await session.execute(query)
+        product_units = {product_ids[id]: unit for id, unit in enumerate(result.scalars().all())}
+
 
     text += "\nТовары:"
-    for product in order.items:
-        text += f'\nID: {product.product_id}, Количество: {product.quantity}, Цена: {product.item_price}'
+    for index, product in enumerate(order.items):
+        text += f'\n{index+1}) [{product.product_id}] {product_names[product.product_id]} - {product.quantity} {product_units[product.product_id]}  x {product.item_price} Р = {product.quantity * product.item_price} Р'
 
     return requests.post(
           "https://api.mailgun.net/v3/sandbox29a24eb4cf7c4c0bbbc712cb2722265f.mailgun.org/messages",
@@ -25,6 +39,6 @@ def send_order_email(order: Order):
             "from": f"Orders email <{get_email_from()}>",
             "to": f"EcoBaza <{get_email_to()}>",
               "subject": f"Заказ #{order.id}",
-              "text": text
+              "text": text.strip()
             }
         )

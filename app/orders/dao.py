@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy import select
-from app.constants import PriceConst
 from app.dao import BaseDAO
 from app.database import async_session_maker
 from app.models import Order, OrderItem, Product
@@ -43,9 +42,6 @@ class OrdersDAO(BaseDAO):
                     
                     total_price += order_items.item_price * item_in.quantity
                     order.items.append(order_items)
-                
-                if order_in.delivery_address is not None:
-                    total_price += PriceConst.delivery_price
 
                 order.total_price = total_price
 
