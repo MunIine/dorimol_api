@@ -80,6 +80,7 @@ class Category(Base):
     id: Mapped[int_pk]
     name: Mapped[str_uniq]
     image_url: Mapped[str] = mapped_column(nullable=False)
+    enabled: Mapped[bool] = mapped_column(nullable=False, server_default=text("true"))
 
     products: Mapped[list[Product]] = relationship("Product", back_populates="category")
 

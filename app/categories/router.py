@@ -6,4 +6,4 @@ router = APIRouter(prefix='/categories', tags=['Категории'])
 
 @router.get("/", summary="Получить все категории", response_model=list[SCategory])
 async def get_all_categories():
-    return await CategoryDAO.find_all()
+    return await CategoryDAO.find_all(enabled=True)
