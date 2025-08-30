@@ -2,7 +2,6 @@ from enum import Enum
 from sqlalchemy import asc, case, desc
 
 class ProductConst():
-    units = ["кг", "шт"]
     statuses = ["default", "new", "sale"]
     default_status = "default"
 

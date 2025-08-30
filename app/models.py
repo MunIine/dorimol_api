@@ -19,7 +19,7 @@ class Product(Base):
     price: Mapped[float] = mapped_column(nullable=False)
     wholesale_price: Mapped[float] = mapped_column(nullable=False)
     wholesale_start_quantity: Mapped[float] = mapped_column(nullable=False)
-    unit: Mapped[str] = mapped_column(sqlEnum(*ProductConst.units, name="unit"), nullable=False)
+    unit: Mapped[str] = mapped_column(nullable=False, server_default="кг")
     stock: Mapped[float] = mapped_column(nullable=False, server_default=text("0"))
     status: Mapped[str] = mapped_column(sqlEnum(*ProductConst.statuses, name="status"), nullable=False, server_default=text(f"\'{ProductConst.default_status}\'"))
     order_count: Mapped[int] = mapped_column(nullable=False, server_default=text("0"))
