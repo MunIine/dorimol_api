@@ -19,13 +19,13 @@ async def send_order_email(order: Order):
     async with async_session_maker() as session:
         product_ids = [item.product_id for item in order.items]
 
-        query = select(Product.name).where(Product.id.in_(product_ids))
+        query = select(Product.id, Product.name).where(Product.id.in_(product_ids))
         result = await session.execute(query)
-        product_names = {product_ids[id]: name for id, name in enumerate(result.scalars().all())}
+        product_names = {row["id"]: row["name"] for row in result.mappings().all()}
 
-        query = select(Product.unit).where(Product.id.in_(product_ids))
+        query = select(Product.id, Product.unit).where(Product.id.in_(product_ids))
         result = await session.execute(query)
-        product_units = {product_ids[id]: unit for id, unit in enumerate(result.scalars().all())}
+        product_units = {row["id"]: row["unit"] for row in result.mappings().all()}
 
 
     text += "\nТовары:"
