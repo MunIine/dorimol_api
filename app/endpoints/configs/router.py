@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.configs.dao import ConfigDAO
+from app.endpoints.configs.dao import ConfigDAO
 
 router = APIRouter(prefix='/config', tags=['Конфигурация'])
 

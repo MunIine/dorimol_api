@@ -1,5 +1,5 @@
 from fastapi import APIRouter 
-from app.categories.dao import CategoryDAO
+from app.endpoints.categories.dao import CategoryDAO
 from app.schema import SCategory
 
 router = APIRouter(prefix='/categories', tags=['Категории'])

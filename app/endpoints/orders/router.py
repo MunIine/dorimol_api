@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.email import send_order_email
-from app.orders.dao import OrdersDAO
+from app.endpoints.orders.dao import OrdersDAO
 from app.schema import SOrderAdd
 
 router = APIRouter(prefix='/orders', tags=['Заказы'])

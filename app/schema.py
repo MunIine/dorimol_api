@@ -60,3 +60,15 @@ class SOrderItemAdd(BaseModel):
     product_id: str = Field(..., description="ID продукта")
     quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
+
+class SAuthFirebaseIdToken(BaseModel):
+    id_token: str = Field(..., description="Id токен")
+
+class SAuthFirebaseAnwer(BaseModel):
+    access_token: str = Field(..., description="JWT токен")
+    refresh_token: str = Field(..., description="Refresh токен")
+
+class SUser(BaseModel):
+    uid: str = Field(..., description="Уникальный идентификатор пользователя")
+    role: str = Field(..., description="Роль пользователя: user, admin")
+    onboarding_required: bool = Field(..., description="Нужен ли пользователю онбординг")
