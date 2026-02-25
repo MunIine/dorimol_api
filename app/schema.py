@@ -71,4 +71,4 @@ class SAuthFirebaseAnwer(BaseModel):
 class SUser(BaseModel):
     uid: str = Field(..., description="Уникальный идентификатор пользователя")
     role: str = Field(..., description="Роль пользователя: user, admin")
-    onboarding_required: bool = Field(..., description="Нужен ли пользователю онбординг")
+    onboarding_completed: bool = Field(..., description="Завершил ли пользователь онбординг")

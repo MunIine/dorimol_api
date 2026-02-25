@@ -117,3 +117,12 @@ class OrderItem(Base):
 class Config(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     value: Mapped[str] = mapped_column(String, nullable=False)
+
+class User(Base):
+    uid: Mapped[str] = mapped_column(String, primary_key=True)
+    role: Mapped[str] = mapped_column(String, nullable=False, server_default="user")
+    onboarding_completed: Mapped[bool] = mapped_column(nullable=False, server_default=text("false"))
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    phone_number: Mapped[str] = mapped_column(String, nullable=True)
+    city: Mapped[str] = mapped_column(String, nullable=True)
+    address: Mapped[str] = mapped_column(String, nullable=True)
