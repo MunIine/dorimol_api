@@ -40,3 +40,16 @@ class TokenService:
             raise HTTPException(status_code=401, detail="Token expired")
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Token invalid")
+        
+    def check_authorization(self, authorization: str | None):
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+        
+        try:
+            scheme, token = authorization.split()
+            if scheme.lower() != "Bearer":
+                raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+        except ValueError:
+           raise HTTPException(status_code=401, detail="Invalid authorization header format")
+        
+        return token
