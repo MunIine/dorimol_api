@@ -47,7 +47,7 @@ class TokenService:
         
         try:
             scheme, token = authorization.split()
-            if scheme.lower() != "Bearer":
+            if scheme.lower() != "bearer":
                 raise HTTPException(status_code=401, detail="Invalid authentication scheme")
         except ValueError:
            raise HTTPException(status_code=401, detail="Invalid authorization header format")
