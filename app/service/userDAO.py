@@ -29,3 +29,24 @@ class UserDAO(BaseDAO):
                     raise e
                 
                 return user
+            
+    @classmethod
+    async def update_user(cls, uid: str, data: dict):
+        async with async_session_maker() as session:
+            async with session.begin():
+                result = await session.execute(select(cls.model).where(cls.model.uid == uid))
+                user = result.scalars().one_or_none()
+                if user is None:
+                    raise ValueError(f"User with uid '{uid}' not found")
+                
+                for key, value in data.items():
+                    setattr(user, key, value)
+                
+                try:
+                    await session.flush()
+                    await session.commit()
+                except SQLAlchemyError as e:
+                    await session.rollback()
+                    raise e
+                
+                return user

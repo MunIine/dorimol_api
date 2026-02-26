@@ -8,6 +8,7 @@ from app.endpoints.feedbacks.router import router as router_feedbacks
 from app.endpoints.orders.router import router as router_orders
 from app.endpoints.configs.router import router as router_configs
 from app.endpoints.auth.router import router as router_auth
+from app.endpoints.user.router import router as router_user
 
 app = FastAPI()
 
@@ -27,6 +28,7 @@ app.include_router(router_orders)
 app.include_router(router_configs)
 
 app.include_router(router_auth)
+app.include_router(router_user)
 
 app.mount("/media/categories", StaticFiles(directory="media/categories/"), name="categories")
 app.mount("/media/products", StaticFiles(directory="media/products/"), name="products")

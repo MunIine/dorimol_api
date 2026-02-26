@@ -2,6 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
+from app.models import User
+
 class SProduct(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str = Field(..., description="Уникальный идентификатор продукта", min_length=8, max_length=8)
@@ -64,7 +66,7 @@ class SOrderItemAdd(BaseModel):
 class SAuthFirebaseIdToken(BaseModel):
     id_token: str = Field(..., description="Id токен")
 
-class SAuthFirebaseAnwer(BaseModel):
+class STokens(BaseModel):
     access_token: str = Field(..., description="JWT токен")
     refresh_token: str = Field(..., description="Refresh токен")
 
@@ -72,3 +74,29 @@ class SUser(BaseModel):
     uid: str = Field(..., description="Уникальный идентификатор пользователя")
     role: str = Field(..., description="Роль пользователя: user, admin")
     onboarding_completed: bool = Field(..., description="Завершил ли пользователь онбординг")
+
+    @classmethod
+    def from_user(cls, user: User):
+        return cls(
+            uid=user.uid,
+            role=user.role,
+            onboarding_completed=user.onboarding_completed
+        )
+
+class SUserUpdate(BaseModel):
+    role: Optional[str] = Field(None, description="Роль пользователя: user, admin")
+    onboarding_completed: Optional[bool] = Field(None, description="Завершил ли пользователь онбординг")
+    name: Optional[str] = Field(None, description="Имя пользователя")
+    phone_number: Optional[str] = Field(None, description="Номер телефона пользователя")
+    city: Optional[str] = Field(None, description="Город пользователя")
+    address: Optional[str] = Field(None, description="Адрес пользователя")
+
+    def to_dict(self) -> dict:
+        return {
+            "role": self.role,
+            "onboarding_completed": self.onboarding_completed,
+            "name": self.name,
+            "phone_number": self.phone_number,
+            "city": self.city,
+            "address": self.address
+        }
