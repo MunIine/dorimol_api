@@ -3,7 +3,7 @@ from app.config import get_jwt_secret_key
 import jwt
 import time
 
-from app.schema import SUser
+from app.schema import STokens, SUser
 
 class TokenService:
     def generate_access_token(self, user: SUser):
@@ -13,7 +13,7 @@ class TokenService:
             "role": user.role,
             "onboarding_completed": user.onboarding_completed,
             "iat": now,
-            "exp": now + 3600,
+            "exp": now + 60,
         }
         token = jwt.encode(payload, get_jwt_secret_key(), algorithm="HS256")
         return token
@@ -22,6 +22,8 @@ class TokenService:
         now = int(time.time())
         payload = {
             "uid": user.uid,
+            "role": user.role,
+            "onboarding_completed": user.onboarding_completed,
             "iat": now,
             "exp": now + 30 * 24 * 3600,
         }
@@ -31,7 +33,10 @@ class TokenService:
     def generate_tokens(self, user: SUser):
         access_token = self.generate_access_token(user)
         refresh_token = self.generate_refresh_token(user)
-        return access_token, refresh_token
+        return STokens(
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
     
     def decode_token(self, token: str):
         try:
@@ -53,3 +58,14 @@ class TokenService:
            raise HTTPException(status_code=401, detail="Invalid authorization header format")
         
         return token
+    
+    def refresh_tokens(self, token: str):
+        payload = self.decode_token(token)
+        if payload.get("exp", 0) < int(time.time()):
+            raise HTTPException(status_code=401, detail="Refresh token expired")
+        
+        try:
+            user = SUser.from_dict(payload)
+            return self.generate_tokens(user)
+        except KeyError:
+            raise HTTPException(status_code=401, detail="Invalid token payload")

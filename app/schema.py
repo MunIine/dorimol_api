@@ -82,6 +82,14 @@ class SUser(BaseModel):
             role=user.role,
             onboarding_completed=user.onboarding_completed
         )
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            uid=data["uid"],
+            role=data["role"],
+            onboarding_completed=data["onboarding_completed"]
+        )
 
 class SUserUpdate(BaseModel):
     role: Optional[str] = Field(None, description="Роль пользователя: user, admin")

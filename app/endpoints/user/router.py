@@ -11,9 +11,6 @@ async def update_user(body: SUserUpdate, authorization: str | None = Header(None
     token = user_service.token_service.check_authorization(authorization)
     user = await user_service.update_user(body, token)
 
-    access_token, refresh_token = user_service.token_service.generate_tokens(user)
+    tokens = user_service.token_service.generate_tokens(user)
 
-    return STokens(
-        access_token=access_token,
-        refresh_token=refresh_token,
-    )
+    return tokens
