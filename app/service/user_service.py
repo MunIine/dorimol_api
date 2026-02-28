@@ -7,7 +7,7 @@ class UserService:
     def __init__(self):
         self.token_service = TokenService()
 
-    async def get_user(self, id_token: str) -> SUser:
+    async def get_or_create_user(self, id_token: str) -> SUser:
         response = auth.verify_id_token(id_token=id_token, clock_skew_seconds=3)
         uid = response["uid"]
 
@@ -18,11 +18,12 @@ class UserService:
         user = await UserDAO.create_user(uid)
         return SUser.from_user(user)
     
-    async def update_user(self, update_body: SUserUpdate, access_token: str):
+    
+    async def update_user(self, update_body: SUserUpdate, authorization: str | None):
         data = update_body.to_dict()
         data = {k: v for k, v in data.items() if v is not None}
 
-        uid = TokenService().decode_token(access_token)["uid"]
+        uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.update_user(uid, data)
 
         return SUser.from_user(user)
