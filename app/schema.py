@@ -108,3 +108,33 @@ class SUserUpdate(BaseModel):
             "city": self.city,
             "address": self.address
         }
+    
+class SUserFull(SUser):
+    name: Optional[str] = Field(None, description="Имя пользователя")
+    phone_number: Optional[str] = Field(None, description="Номер телефона пользователя")
+    city: Optional[str] = Field(None, description="Город пользователя")
+    address: Optional[str] = Field(None, description="Адрес пользователя")
+
+    @classmethod
+    def from_user(cls, user: User):
+        return cls(
+            uid=user.uid,
+            role=user.role,
+            onboarding_completed=user.onboarding_completed,
+            name=user.name,
+            phone_number=user.phone_number,
+            city=user.city,
+            address=user.address
+        )
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            uid=data["uid"],
+            role=data["role"],
+            onboarding_completed=data["onboarding_completed"],
+            name=data.get("name"),
+            phone_number=data.get("phone_number"),
+            city=data.get("city"),
+            address=data.get("address")
+        )

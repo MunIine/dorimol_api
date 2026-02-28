@@ -1,5 +1,6 @@
+from fastapi import HTTPException
 from firebase_admin import auth
-from app.schema import SUser, SUserUpdate
+from app.schema import SUser, SUserFull, SUserUpdate
 from app.service.userDAO import UserDAO
 from app.service.token_service import TokenService
 
@@ -18,6 +19,16 @@ class UserService:
         user = await UserDAO.create_user(uid)
         return SUser.from_user(user)
     
+    async def get_current_user(self, authorization: str | None) -> SUserFull:
+        payloads = self.token_service.check_authorization(authorization)
+        uid = payloads["uid"]
+
+        user = await UserDAO.get_user(uid)
+        
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return SUserFull.from_user(user)
     
     async def update_user(self, update_body: SUserUpdate, authorization: str | None):
         data = update_body.to_dict()
