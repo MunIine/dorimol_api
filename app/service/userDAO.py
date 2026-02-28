@@ -16,10 +16,10 @@ class UserDAO(BaseDAO):
             return user
         
     @classmethod
-    async def create_user(cls, uid: str):
+    async def create_user(cls, uid: str, phone_number: str | None = None):
         async with async_session_maker() as session:
             async with session.begin():
-                user = User(uid=uid)
+                user = User(uid=uid, phone_number=phone_number)
                 session.add(user)
                 try:
                     await session.flush()

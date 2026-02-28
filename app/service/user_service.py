@@ -16,7 +16,7 @@ class UserService:
         if user is not None:
             return SUser.from_user(user)
         
-        user = await UserDAO.create_user(uid)
+        user = await UserDAO.create_user(uid, phone_number=response.get("phone_number"))
         return SUser.from_user(user)
     
     async def get_current_user(self, authorization: str | None) -> SUserFull:
@@ -32,7 +32,7 @@ class UserService:
     
     async def update_user(self, update_body: SUserUpdate, authorization: str | None):
         data = update_body.to_dict()
-        data = {k: v for k, v in data.items() if v is not None}
+        data = {k: v for k, v in data.items() if v is not None and k != "uid"}
 
         uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.update_user(uid, data)
