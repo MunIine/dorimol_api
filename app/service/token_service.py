@@ -13,7 +13,7 @@ class TokenService:
             "role": user.role,
             "onboarding_completed": user.onboarding_completed,
             "iat": now,
-            "exp": now + 60,
+            "exp": now + 3600,
         }
         token = jwt.encode(payload, get_jwt_secret_key(), algorithm="HS256")
         return token

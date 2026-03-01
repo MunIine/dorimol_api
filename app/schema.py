@@ -111,7 +111,7 @@ class SUserUpdate(BaseModel):
     
 class SUserFull(SUser):
     name: Optional[str] = Field(None, description="Имя пользователя")
-    phone_number: Optional[str] = Field(None, description="Номер телефона пользователя")
+    phone_number: str = Field(..., description="Номер телефона пользователя")
     city: Optional[str] = Field(None, description="Город пользователя")
     address: Optional[str] = Field(None, description="Адрес пользователя")
 
@@ -134,7 +134,7 @@ class SUserFull(SUser):
             role=data["role"],
             onboarding_completed=data["onboarding_completed"],
             name=data.get("name"),
-            phone_number=data.get("phone_number"),
+            phone_number=data["phone_number"],
             city=data.get("city"),
             address=data.get("address")
         )
