@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 from app.dao import BaseDAO
 from app.database import async_session_maker
 from app.models import Order, OrderItem, Product
-from app.schema import SOrderAdd
+from app.schema import SOrder, SOrderAdd, SOrderPreview
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -59,13 +59,26 @@ class OrdersDAO(BaseDAO):
                 return order
 
     @classmethod
-    async def get_orders_by_user(cls, user_uid: str):
+    async def get_orders_by_user(cls, user_uid: str) -> list[SOrderPreview]:
         async with async_session_maker() as session:
             result = await session.execute(
                 select(Order)
-                .options(joinedload(Order.items))
                 .where(Order.user_uid == user_uid)
                 .order_by(Order.id.desc())
                 .limit(5) # TODO: remove limit
             )
-            return result.scalars().unique().all()
+            orders = list(map(lambda order: SOrderPreview.model_validate(order), result.scalars().unique().all()))
+            return orders
+
+    @classmethod
+    async def get_order_by_id(cls, order_id: int, user_id: str):
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(Order)
+                .options(joinedload(Order.items))
+                .where(Order.id == order_id, Order.user_uid == user_id)
+            )
+            order = result.unique().scalar_one_or_none()
+            if not order:
+                raise HTTPException(status_code=404, detail="Order not found")
+            return SOrder.model_validate(order)

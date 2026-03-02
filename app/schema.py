@@ -65,6 +65,13 @@ class SOrderItemAdd(BaseModel):
     quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
 
+class SOrderPreview(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = Field(..., description="ID заказа")
+    city: Optional[str] = Field(None, description="Город доставки")
+    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    created_at: datetime = Field(..., description="Дата создания заказа")
+
 class SOrderItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int = Field(..., description="ID позиции заказа")
@@ -84,6 +91,7 @@ class SOrder(BaseModel):
     comment: Optional[str] = Field(None, description="Комментарий к заказу")
     total_price: float = Field(..., description="Общая стоимость заказа")
     items: list[SOrderItem] = Field(..., description="Список товаров в заказе")
+    created_at: datetime = Field(..., description="Дата создания заказа")
 
 class SAuthFirebaseIdToken(BaseModel):
     model_config = ConfigDict(from_attributes=True)

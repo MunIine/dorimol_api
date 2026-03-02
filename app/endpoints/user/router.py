@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header
-from app.schema import STokens, SUserFull, SUserUpdate, SOrder
+from app.schema import SOrderPreview, STokens, SUserFull, SUserUpdate
 from app.service.user_service import UserService
 from app.endpoints.orders.dao import OrdersDAO
 
@@ -21,7 +21,7 @@ async def get_current_user(authorization: str | None = Header(None)):
     user = await user_service.get_current_user(authorization)
     return user
 
-@router.get("/me/orders", summary="Получение заказов текущего пользователя", response_model=list[SOrder])
+@router.get("/me/orders", summary="Получение заказов текущего пользователя", response_model=list[SOrderPreview])
 async def get_current_user_orders(authorization: str | None = Header(None)):
     user_service = UserService()
     current_user = await user_service.get_current_user(authorization)
