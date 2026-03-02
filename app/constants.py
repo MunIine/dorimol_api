@@ -25,3 +25,7 @@ class SortingProductConst(str, Enum):
                 return case((Product.status == "new", 0), else_=1)
             case SortingProductConst.sale:
                 return case((Product.status == "sale", 0), else_=1)
+
+class OrderConst():
+    statuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
+    default_status = "pending"

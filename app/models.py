@@ -1,7 +1,7 @@
 from sqlalchemy import Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column, declared_attr
-from app.constants import ProductConst
+from app.constants import OrderConst, ProductConst
 from app.database import Base, str_uniq, int_pk
 
 product_vendors = Table(
@@ -92,12 +92,16 @@ class Category(Base):
 
 class Order(Base):
     id: Mapped[int_pk]
+    user_uid: Mapped[str] = mapped_column(ForeignKey("users.uid"), nullable=False)
+    status: Mapped[str] = mapped_column(sqlEnum(*OrderConst.statuses, name="order_status"), nullable=False, server_default=text(f"\'{OrderConst.default_status}\'"))
     full_name: Mapped[str] = mapped_column(nullable=False)
     phone_number: Mapped[str] = mapped_column(nullable=False)
+    city: Mapped[str] = mapped_column(Text, nullable=True)
     delivery_address: Mapped[str] = mapped_column(Text, nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     total_price: Mapped[float] = mapped_column(nullable=False)
 
+    user = relationship("User")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 class OrderItem(Base):

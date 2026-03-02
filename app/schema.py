@@ -52,6 +52,7 @@ class SFeedback(BaseModel):
     created_at: datetime = Field(..., description="Дата создания отзыва")
 
 class SOrderAdd(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     full_name: str = Field(..., description="ФИО заказчика")
     phone_number: str = Field(..., description="Телефон заказчика")
     delivery_address: Optional[str] = Field(None, description="Адрес доставки")
@@ -59,18 +60,42 @@ class SOrderAdd(BaseModel):
     items: list["SOrderItemAdd"] = Field(..., description="Список товаров в заказе")
 
 class SOrderItemAdd(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     product_id: str = Field(..., description="ID продукта")
     quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
 
+class SOrderItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = Field(..., description="ID позиции заказа")
+    product_id: str = Field(..., description="ID продукта")
+    quantity: float = Field(..., description="Количество")
+    item_price: float = Field(..., description="Цена за единицу товара")
+
+
+class SOrder(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = Field(..., description="ID заказа")
+    status: str = Field(..., description="Статус заказа")
+    full_name: str = Field(..., description="ФИО заказчика")
+    phone_number: str = Field(..., description="Телефон заказчика")
+    city: Optional[str] = Field(None, description="Город доставки")
+    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    comment: Optional[str] = Field(None, description="Комментарий к заказу")
+    total_price: float = Field(..., description="Общая стоимость заказа")
+    items: list[SOrderItem] = Field(..., description="Список товаров в заказе")
+
 class SAuthFirebaseIdToken(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id_token: str = Field(..., description="Id токен")
 
 class STokens(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     access_token: str = Field(..., description="JWT токен")
     refresh_token: str = Field(..., description="Refresh токен")
 
 class SUser(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     uid: str = Field(..., description="Уникальный идентификатор пользователя")
     role: str = Field(..., description="Роль пользователя: user, admin")
     onboarding_completed: bool = Field(..., description="Завершил ли пользователь онбординг")
@@ -92,6 +117,7 @@ class SUser(BaseModel):
         )
 
 class SUserUpdate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     role: Optional[str] = Field(None, description="Роль пользователя: user, admin")
     onboarding_completed: Optional[bool] = Field(None, description="Завершил ли пользователь онбординг")
     name: Optional[str] = Field(None, description="Имя пользователя")
