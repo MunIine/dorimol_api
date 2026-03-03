@@ -1,4 +1,4 @@
-from sqlalchemy import Enum as sqlEnum
+from sqlalchemy import UUID, Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column, declared_attr
 from app.constants import OrderConst, ProductConst
@@ -91,13 +91,13 @@ class Category(Base):
         return f"<Category(id={self.id}, name={self.name})>"
 
 class Order(Base):
-    id: Mapped[int_pk]
-    user_uid: Mapped[str] = mapped_column(ForeignKey("users.uid"), nullable=False)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.uid"), nullable=False)
     status: Mapped[str] = mapped_column(sqlEnum(*OrderConst.statuses, name="order_status"), nullable=False, server_default=text(f"\'{OrderConst.default_status}\'"))
     full_name: Mapped[str] = mapped_column(nullable=False)
     phone_number: Mapped[str] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(Text, nullable=True)
-    delivery_address: Mapped[str] = mapped_column(Text, nullable=True)
+    address: Mapped[str] = mapped_column(Text, nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     total_price: Mapped[float] = mapped_column(nullable=False)
 
@@ -110,7 +110,7 @@ class OrderItem(Base):
         return "order_items"
 
     id: Mapped[int_pk]
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
+    order_id: Mapped[UUID] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[str] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[float] = mapped_column(nullable=False)
     item_price: Mapped[float] = mapped_column(nullable=False)

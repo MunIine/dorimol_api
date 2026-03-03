@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
@@ -67,9 +68,11 @@ class SOrderItemAdd(BaseModel):
 
 class SOrderPreview(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: int = Field(..., description="ID заказа")
+    id: UUID = Field(..., description="ID заказа")
+    status: str = Field(..., description="Статус заказа")
+    total_price: float = Field(..., description="Общая стоимость заказа")
     city: Optional[str] = Field(None, description="Город доставки")
-    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
     created_at: datetime = Field(..., description="Дата создания заказа")
 
 class SOrderItem(BaseModel):
@@ -82,12 +85,12 @@ class SOrderItem(BaseModel):
 
 class SOrder(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: int = Field(..., description="ID заказа")
+    id: UUID = Field(..., description="ID заказа")
     status: str = Field(..., description="Статус заказа")
     full_name: str = Field(..., description="ФИО заказчика")
     phone_number: str = Field(..., description="Телефон заказчика")
     city: Optional[str] = Field(None, description="Город доставки")
-    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
     comment: Optional[str] = Field(None, description="Комментарий к заказу")
     total_price: float = Field(..., description="Общая стоимость заказа")
     items: list[SOrderItem] = Field(..., description="Список товаров в заказе")

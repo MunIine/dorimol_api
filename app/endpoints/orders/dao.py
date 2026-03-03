@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -63,7 +65,7 @@ class OrdersDAO(BaseDAO):
         async with async_session_maker() as session:
             result = await session.execute(
                 select(Order)
-                .where(Order.user_uid == user_uid)
+                .where(Order.user_id == user_uid)
                 .order_by(Order.id.desc())
                 .limit(5) # TODO: remove limit
             )
@@ -71,12 +73,12 @@ class OrdersDAO(BaseDAO):
             return orders
 
     @classmethod
-    async def get_order_by_id(cls, order_id: int, user_id: str):
+    async def get_order_by_id(cls, order_id: UUID, user_id: str):
         async with async_session_maker() as session:
             result = await session.execute(
                 select(Order)
                 .options(joinedload(Order.items))
-                .where(Order.id == order_id, Order.user_uid == user_id)
+                .where(Order.id == order_id, Order.user_id == user_id)
             )
             order = result.unique().scalar_one_or_none()
             if not order:

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Header
 from app.email import send_order_email
 from app.endpoints.orders.dao import OrdersDAO
@@ -16,7 +18,7 @@ async def add_order(order: SOrderAdd):
         return {"message": "Ошибка при добавлении заказа"}
 
 @router.get(path="/{order_id}", summary="Получение заказа по ID", response_model=SOrder)
-async def get_order_by_id(order_id: int, authorization: str | None = Header(None)):
+async def get_order_by_id(order_id: UUID, authorization: str | None = Header(None)):
     user_service = UserService()
     user = await user_service.get_current_user(authorization)
 
