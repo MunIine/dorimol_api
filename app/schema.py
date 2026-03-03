@@ -111,22 +111,6 @@ class SUser(BaseModel):
     role: str = Field(..., description="Роль пользователя: user, admin")
     onboarding_completed: bool = Field(..., description="Завершил ли пользователь онбординг")
 
-    @classmethod
-    def from_user(cls, user: User):
-        return cls(
-            uid=user.uid,
-            role=user.role,
-            onboarding_completed=user.onboarding_completed
-        )
-    
-    @classmethod
-    def from_dict(cls, data: dict):
-        return cls(
-            uid=data["uid"],
-            role=data["role"],
-            onboarding_completed=data["onboarding_completed"]
-        )
-
 class SUserUpdate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     role: Optional[str] = Field(None, description="Роль пользователя: user, admin")
@@ -147,31 +131,9 @@ class SUserUpdate(BaseModel):
         }
     
 class SUserFull(SUser):
+    image_url: Optional[str] = Field(None, description="URL изображения пользователя на сервере")
     name: Optional[str] = Field(None, description="Имя пользователя")
     phone_number: str = Field(..., description="Номер телефона пользователя")
     city: Optional[str] = Field(None, description="Город пользователя")
     address: Optional[str] = Field(None, description="Адрес пользователя")
-
-    @classmethod
-    def from_user(cls, user: User):
-        return cls(
-            uid=user.uid,
-            role=user.role,
-            onboarding_completed=user.onboarding_completed,
-            name=user.name,
-            phone_number=user.phone_number,
-            city=user.city,
-            address=user.address
-        )
-    
-    @classmethod
-    def from_dict(cls, data: dict):
-        return cls(
-            uid=data["uid"],
-            role=data["role"],
-            onboarding_completed=data["onboarding_completed"],
-            name=data.get("name"),
-            phone_number=data["phone_number"],
-            city=data.get("city"),
-            address=data.get("address")
-        )
+    orders_amount: int = Field(..., description="Количество заказов пользователя")

@@ -66,7 +66,7 @@ class OrdersDAO(BaseDAO):
             result = await session.execute(
                 select(Order)
                 .where(Order.user_id == user_uid)
-                .order_by(Order.id.desc())
+                .order_by(Order.created_at.desc())
                 .limit(5) # TODO: remove limit
             )
             orders = list(map(lambda order: SOrderPreview.model_validate(order), result.scalars().unique().all()))

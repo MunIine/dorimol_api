@@ -77,7 +77,7 @@ class TokenService:
             raise HTTPException(status_code=401, detail="Refresh token expired")
         
         try:
-            user = SUser.from_dict(payload)
+            user = SUser.model_validate(payload)
             return self.generate_tokens(user)
         except KeyError:
             raise HTTPException(status_code=401, detail="Invalid token payload")

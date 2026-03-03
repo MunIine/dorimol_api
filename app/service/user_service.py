@@ -14,27 +14,29 @@ class UserService:
 
         user = await UserDAO.get_user(uid)
         if user is not None:
-            return SUser.from_user(user)
+            return SUser.model_validate(user)
         
         user = await UserDAO.create_user(uid, phone_number=response.get("phone_number"))
-        return SUser.from_user(user)
+        return SUser.model_validate(user)
     
     async def get_current_user(self, authorization: str | None) -> SUserFull:
         payloads = self.token_service.check_authorization(authorization)
         uid = payloads["uid"]
 
-        user = await UserDAO.get_user(uid)
+        user, orders_amount = await UserDAO.get_user_with_orders_count(uid)
         
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
         
-        return SUserFull.from_user(user)
+        user_data = user.__dict__.copy()
+        user_data["orders_amount"] = orders_amount
+        return SUserFull.model_validate(user_data)
     
-    async def update_user(self, update_body: SUserUpdate, authorization: str | None):
+    async def update_user(self, update_body: SUserUpdate, authorization: str | None) -> SUser:
         data = update_body.to_dict()
         data = {k: v for k, v in data.items() if v is not None and k != "uid"}
 
         uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.update_user(uid, data)
 
-        return SUser.from_user(user)
+        return SUser.model_validate(user)

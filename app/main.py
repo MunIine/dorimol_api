@@ -32,6 +32,7 @@ app.include_router(router_user)
 
 app.mount("/media/categories", StaticFiles(directory="media/categories/"), name="categories")
 app.mount("/media/products", StaticFiles(directory="media/products/"), name="products")
+app.mount("/media/avatars", StaticFiles(directory="media/avatars/"), name="avatars")
 
 
 
