@@ -16,7 +16,7 @@ async def create_jwt(body: SAuthFirebaseIdToken):
 @router.post("/refresh", summary="Обновление токенов", response_model=STokens)
 async def refresh_tokens(authorization: str | None = Header(None)):
     user_service = UserService()
-    tokens = user_service.token_service.refresh_tokens(authorization)
+    tokens = await user_service.refresh_tokens(authorization)
     return tokens
 
 @router.get("/validate", summary="Проверка валидности токена")

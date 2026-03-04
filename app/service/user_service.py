@@ -1,3 +1,5 @@
+import time
+
 from fastapi import HTTPException
 from firebase_admin import auth
 from app.schema import SUser, SUserFull, SUserUpdate
@@ -40,3 +42,14 @@ class UserService:
         user = await UserDAO.update_user(uid, data)
 
         return SUser.model_validate(user)
+    
+    async def refresh_tokens(self, authorization: str | None):
+        payload = self.token_service.check_authorization(authorization)
+        if payload.get("exp", 0) < int(time.time()):
+            raise HTTPException(status_code=401, detail="Refresh token expired")
+        
+        try:
+            user = await UserDAO.get_user(payload['uid'])
+            return self.token_service.generate_tokens(SUser.model_validate(user))
+        except KeyError:
+            raise HTTPException(status_code=401, detail="Invalid token payload")

@@ -70,14 +70,3 @@ class TokenService:
         
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Token invalid")
-    
-    def refresh_tokens(self, authorization: str | None):
-        payload = self.check_authorization(authorization)
-        if payload.get("exp", 0) < int(time.time()):
-            raise HTTPException(status_code=401, detail="Refresh token expired")
-        
-        try:
-            user = SUser.model_validate(payload)
-            return self.generate_tokens(user)
-        except KeyError:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
