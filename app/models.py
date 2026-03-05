@@ -1,6 +1,7 @@
 from sqlalchemy import UUID, Enum as sqlEnum
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column, declared_attr
+from sqlalchemy.dialects.postgresql import JSONB
 from app.constants import OrderConst, ProductConst
 from app.database import Base, str_uniq, int_pk
 
@@ -119,8 +120,11 @@ class OrderItem(Base):
     product = relationship("Product")
 
 class Config(Base):
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    value: Mapped[str] = mapped_column(String, nullable=False)
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return "config"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    value: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
 class User(Base):
     uid: Mapped[str] = mapped_column(String, primary_key=True)
