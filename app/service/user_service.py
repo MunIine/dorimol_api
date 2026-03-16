@@ -35,8 +35,7 @@ class UserService:
         return SUserFull.model_validate(user_data)
     
     async def update_user(self, update_body: SUserUpdate, authorization: str | None) -> SUser:
-        data = update_body.to_dict()
-        data = {k: v for k, v in data.items() if v is not None and k != "uid"}
+        data = update_body.model_dump(exclude_unset=True)
 
         uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.update_user(uid, data)

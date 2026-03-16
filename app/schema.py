@@ -119,16 +119,6 @@ class SUserUpdate(BaseModel):
     phone_number: Optional[str] = Field(None, description="Номер телефона пользователя")
     city: Optional[str] = Field(None, description="Город пользователя")
     address: Optional[str] = Field(None, description="Адрес пользователя")
-
-    def to_dict(self) -> dict:
-        return {
-            "role": self.role,
-            "onboarding_completed": self.onboarding_completed,
-            "name": self.name,
-            "phone_number": self.phone_number,
-            "city": self.city,
-            "address": self.address
-        }
     
 class SUserFull(SUser):
     image_url: Optional[str] = Field(None, description="URL изображения пользователя на сервере")
