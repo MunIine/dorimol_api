@@ -1,8 +1,12 @@
+import os
 import time
-
-from fastapi import HTTPException
+import asyncio
+import aiofiles
+from fastapi import HTTPException, UploadFile
 from firebase_admin import auth
+from app.constants import AvatarUploadConst
 from app.schema import SUser, SUserFull, SUserUpdate
+from app.service.image_service import process_avatar
 from app.service.userDAO import UserDAO
 from app.service.token_service import TokenService
 
@@ -41,6 +45,33 @@ class UserService:
         user = await UserDAO.update_user(uid, data)
 
         return SUser.model_validate(user)
+    
+    async def update_user_avatar(self, avatar: UploadFile, authorization: str | None):
+        uid = self.token_service.check_authorization(authorization)["uid"]
+        user = await UserDAO.get_user(uid)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        file = await avatar.read()
+
+        if AvatarUploadConst.get_image_type(file) is None:
+            raise HTTPException(status_code=400, detail="Incorrect file format")
+
+        if len(file) > AvatarUploadConst.max_size:
+            raise HTTPException(status_code=400, detail="File is too large")
+
+        new_avatar = await asyncio.to_thread(process_avatar, file)
+
+        file_path = f"media/avatars/{uid}_{int(time.time())}.webp"
+        old_file_path = user.image_url
+
+        await UserDAO.update_user(uid, {"image_url": file_path})
+
+        async with aiofiles.open(file_path, "wb") as f:
+            await f.write(new_avatar)
+
+        if old_file_path and await asyncio.to_thread(os.path.exists, old_file_path):
+            await asyncio.to_thread(os.remove, old_file_path)
     
     async def refresh_tokens(self, authorization: str | None):
         payload = self.token_service.check_authorization(authorization)

@@ -29,3 +29,21 @@ class SortingProductConst(str, Enum):
 class OrderConst():
     statuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
     default_status = "pending"
+
+class AvatarUploadConst():
+    max_size = 5 * 1024 * 1024 # 5MB
+    MAGIC_BYTES = {
+        b"\xff\xd8\xff": "jpeg",
+        b"\x89PNG": "png",
+        b"RIFF": "webp",
+    }
+
+    @staticmethod
+    def get_image_type(data: bytes) -> str | None:
+        for magic, fmt in AvatarUploadConst.MAGIC_BYTES.items():
+            if data.startswith(magic):
+                # webp дополнительная проверка из-за контейнера riff
+                if fmt == "webp" and data[8:12] != b"WEBP":
+                    continue
+                return fmt
+        return None

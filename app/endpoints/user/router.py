@@ -1,14 +1,22 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, File, Header, UploadFile
 from app.schema import SOrderPreview, STokens, SUserFull, SUserUpdate
 from app.service.user_service import UserService
 from app.endpoints.orders.dao import OrdersDAO
 
 router = APIRouter(prefix='/user', tags=['Пользователь'])
 
-@router.post("/update", summary="Обновление данных пользователя", response_model=SUserFull)
+@router.patch("/update", summary="Обновление данных пользователя", response_model=SUserFull)
 async def update_user(body: SUserUpdate, authorization: str | None = Header(None)):
     user_service = UserService()
     await user_service.update_user(body, authorization)
+    
+    user = await user_service.get_current_user(authorization)
+    return user
+
+@router.post("/update/avatar", summary="Обновление аватара пользователя", response_model=SUserFull)
+async def update_user_avatar(avatar: UploadFile = File(...), authorization: str | None = Header(None)):
+    user_service = UserService()
+    await user_service.update_user_avatar(avatar, authorization)
     
     user = await user_service.get_current_user(authorization)
     return user

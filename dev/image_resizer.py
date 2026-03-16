@@ -68,10 +68,11 @@ def strip_metadata_save_webp(img, out_buffer, quality, method=6, icc_profile=Non
     return out_buffer.getbuffer().nbytes
 
 
-def compress_image(input_path, output_path,
-                   width, height, max_kb,
-                   mode, bg, min_quality,
-                   keep_orientation, no_resize):
+def compress_image(
+        input_path, output_path, width, 
+        height, max_kb, mode,
+        bg, min_quality, keep_orientation,no_resize
+    ):
 
     img, icc_profile = open_image(input_path)
 
