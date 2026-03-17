@@ -1,5 +1,5 @@
 from fastapi import APIRouter, File, Header, UploadFile
-from app.schema import SOrderPreview, STokens, SUserFull, SUserUpdate
+from app.schema import SOrderPreview, SUserFull, SUserUpdate
 from app.service.user_service import UserService
 from app.endpoints.orders.dao import OrdersDAO
 
@@ -10,7 +10,7 @@ async def update_user(body: SUserUpdate, authorization: str | None = Header(None
     user_service = UserService()
     await user_service.update_user(body, authorization)
     
-    user = await user_service.get_current_user(authorization)
+    user = await user_service.get_current_user_full(authorization)
     return user
 
 @router.post("/update/avatar", summary="Обновление аватара пользователя", response_model=SUserFull)
@@ -18,20 +18,20 @@ async def update_user_avatar(avatar: UploadFile = File(...), authorization: str 
     user_service = UserService()
     await user_service.update_user_avatar(avatar, authorization)
     
-    user = await user_service.get_current_user(authorization)
+    user = await user_service.get_current_user_full(authorization)
     return user
 
 @router.get("/me", summary="Получение данных текущего пользователя", response_model=SUserFull)
 async def get_current_user(authorization: str | None = Header(None)):
     user_service = UserService()
 
-    user = await user_service.get_current_user(authorization)
+    user = await user_service.get_current_user_full(authorization)
     return user
 
 @router.get("/me/orders", summary="Получение заказов текущего пользователя", response_model=list[SOrderPreview])
 async def get_current_user_orders(authorization: str | None = Header(None)):
     user_service = UserService()
-    current_user = await user_service.get_current_user(authorization)
+    uid = user_service.token_service.check_authorization(authorization)["uid"]
 
-    orders = await OrdersDAO.get_orders_by_user(current_user.uid)
+    orders = await OrdersDAO.get_orders_by_user(uid)
     return orders

@@ -1,7 +1,9 @@
 from enum import Enum
 from sqlalchemy import asc, case, desc
 
-class ProductConst():
+from app.schema import SDiscountTier
+
+class ProductConst:
     statuses = ["default", "new", "sale"]
     default_status = "default"
 
@@ -26,11 +28,11 @@ class SortingProductConst(str, Enum):
             case SortingProductConst.sale:
                 return case((Product.status == "sale", 0), else_=1)
 
-class OrderConst():
+class OrderConst:
     statuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
     default_status = "pending"
 
-class AvatarUploadConst():
+class AvatarUploadConst:
     max_size = 5 * 1024 * 1024 # 5MB
     MAGIC_BYTES = {
         b"\xff\xd8\xff": "jpeg",
@@ -47,3 +49,10 @@ class AvatarUploadConst():
                     continue
                 return fmt
         return None
+    
+class DiscountConst:
+    discount_tiers = [
+        SDiscountTier(percent=3, orders_required=3),
+        SDiscountTier(percent=5, orders_required=6),
+        SDiscountTier(percent=7, orders_required=10),
+    ]

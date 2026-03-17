@@ -3,8 +3,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
-from app.models import User
-
 class SProduct(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str = Field(..., description="Уникальный идентификатор продукта", min_length=8, max_length=8)
@@ -51,6 +49,11 @@ class SFeedback(BaseModel):
     comment: str = Field(..., description="Комментарий")
     updated_at: datetime = Field(..., description="Дата обновления отзыва")
     created_at: datetime = Field(..., description="Дата создания отзыва")
+
+class SDiscountTier(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    percent: int
+    orders_required: int
 
 class SOrderAdd(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -127,3 +130,5 @@ class SUserFull(SUser):
     city: Optional[str] = Field(None, description="Город пользователя")
     address: Optional[str] = Field(None, description="Адрес пользователя")
     orders_amount: int = Field(..., description="Количество заказов пользователя")
+    current_discount: int = Field(..., description="Текущая скидка пользователя")
+    discount_tiers: list[SDiscountTier] = Field(..., description="Уровни скидок")

@@ -1,9 +1,12 @@
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.constants import DiscountConst
 from app.dao import BaseDAO
 from app.models import Order, User
 from app.database import async_session_maker
 from sqlalchemy import func, select
+
+from app.schema import SUserFull
 
 class UserDAO(BaseDAO):
     model = User
@@ -16,7 +19,7 @@ class UserDAO(BaseDAO):
             return user
 
     @classmethod
-    async def get_user_with_orders_count(cls, uid: str):
+    async def get_user_full(cls, uid: str):
         async with async_session_maker() as session:
             orders_count_subq = select(func.count(Order.id)).where(Order.user_id == cls.model.uid).scalar_subquery()
             requst = select(cls.model, orders_count_subq.label("orders_count")).where(cls.model.uid == uid)
@@ -24,10 +27,19 @@ class UserDAO(BaseDAO):
 
             row = result.one_or_none()
             if row is None:
-                return None, None
+                return None
             
             user, orders_amount = row
-            return user, orders_amount
+
+            user_data = user.__dict__.copy()
+            user_data["orders_amount"] = orders_amount
+            user_data["discount_tiers"] = DiscountConst.discount_tiers
+            user_data["current_discount"] = max(
+                (tier.percent for tier in DiscountConst.discount_tiers if orders_amount >= tier.orders_required),
+                default=0
+            )
+
+            return SUserFull.model_validate(user_data)
         
     @classmethod
     async def create_user(cls, uid: str, phone_number: str | None = None):

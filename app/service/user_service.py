@@ -5,7 +5,7 @@ import aiofiles
 from fastapi import HTTPException, UploadFile
 from firebase_admin import auth
 from app.constants import AvatarUploadConst
-from app.schema import SUser, SUserFull, SUserUpdate
+from app.schema import STokens, SUser, SUserFull, SUserUpdate
 from app.service.image_service import process_avatar
 from app.service.userDAO import UserDAO
 from app.service.token_service import TokenService
@@ -25,18 +25,16 @@ class UserService:
         user = await UserDAO.create_user(uid, phone_number=response.get("phone_number"))
         return SUser.model_validate(user)
     
-    async def get_current_user(self, authorization: str | None) -> SUserFull:
+    async def get_current_user_full(self, authorization: str | None) -> SUserFull:
         payloads = self.token_service.check_authorization(authorization)
         uid = payloads["uid"]
 
-        user, orders_amount = await UserDAO.get_user_with_orders_count(uid)
+        user = await UserDAO.get_user_full(uid)
         
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
         
-        user_data = user.__dict__.copy()
-        user_data["orders_amount"] = orders_amount
-        return SUserFull.model_validate(user_data)
+        return user
     
     async def update_user(self, update_body: SUserUpdate, authorization: str | None) -> SUser:
         data = update_body.model_dump(exclude_unset=True)
@@ -46,7 +44,7 @@ class UserService:
 
         return SUser.model_validate(user)
     
-    async def update_user_avatar(self, avatar: UploadFile, authorization: str | None):
+    async def update_user_avatar(self, avatar: UploadFile, authorization: str | None) -> None:
         uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.get_user(uid)
         if user is None:
@@ -73,7 +71,7 @@ class UserService:
         if old_file_path and await asyncio.to_thread(os.path.exists, old_file_path):
             await asyncio.to_thread(os.remove, old_file_path)
     
-    async def refresh_tokens(self, authorization: str | None):
+    async def refresh_tokens(self, authorization: str | None) -> STokens:
         payload = self.token_service.check_authorization(authorization)
         if payload.get("exp", 0) < int(time.time()):
             raise HTTPException(status_code=401, detail="Refresh token expired")

@@ -20,7 +20,7 @@ async def add_order(order: SOrderAdd):
 @router.get(path="/{order_id}", summary="Получение заказа по ID", response_model=SOrder)
 async def get_order_by_id(order_id: UUID, authorization: str | None = Header(None)):
     user_service = UserService()
-    user = await user_service.get_current_user(authorization)
+    uid = user_service.token_service.check_authorization(authorization)["uid"]
 
-    order = await OrdersDAO.get_order_by_id(order_id, user.uid)
+    order = await OrdersDAO.get_order_by_id(order_id, uid)
     return order
