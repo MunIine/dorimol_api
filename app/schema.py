@@ -1,7 +1,9 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
+from app.constants import DeliveryTypes
 
 class SProduct(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -57,17 +59,17 @@ class SDiscountTier(BaseModel):
 
 class SOrderAdd(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    full_name: str = Field(..., description="ФИО заказчика")
-    phone_number: str = Field(..., description="Телефон заказчика")
-    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
+    expected_total_price: Decimal = Field(..., description="Ожидаемая итоговая сумма")
+    city: Optional[str] = Field(None, description="Город доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
     comment: Optional[str] = Field(None, description="Комментарий к заказу")
     items: list["SOrderItemAdd"] = Field(..., description="Список товаров в заказе")
 
 class SOrderItemAdd(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     product_id: str = Field(..., description="ID продукта")
-    quantity: float = Field(..., description="Количество")
-    item_price: float = Field(..., description="Цена за единицу товара")
+    quantity: float = Field(..., description="Количество", gt=0)
 
 class SOrderPreview(BaseModel):
     model_config = ConfigDict(from_attributes=True)

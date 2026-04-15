@@ -1,8 +1,10 @@
-from sqlalchemy import UUID, Enum as sqlEnum
+from decimal import Decimal
+
+from sqlalchemy import UUID, Enum as sqlEnum, Numeric
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
 from sqlalchemy.orm import relationship, Mapped, mapped_column, declared_attr
 from sqlalchemy.dialects.postgresql import JSONB
-from app.constants import OrderConst, ProductConst
+from app.constants import DeliveryTypes, OrderConst, ProductConst
 from app.database import Base, str_uniq, int_pk
 
 product_vendors = Table(
@@ -95,12 +97,13 @@ class Order(Base):
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.uid"), nullable=False)
     status: Mapped[str] = mapped_column(sqlEnum(*OrderConst.statuses, name="order_status"), nullable=False, server_default=text(f"\'{OrderConst.default_status}\'"))
+    delivery_type: Mapped[DeliveryTypes] = mapped_column(sqlEnum(DeliveryTypes, name="delivery_types"), nullable=False) #Если что тут ловить
     full_name: Mapped[str] = mapped_column(nullable=False)
     phone_number: Mapped[str] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(Text, nullable=True)
     address: Mapped[str] = mapped_column(Text, nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
-    total_price: Mapped[float] = mapped_column(nullable=False)
+    total_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     user = relationship("User")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")

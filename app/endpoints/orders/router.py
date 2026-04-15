@@ -11,9 +11,8 @@ router = APIRouter(prefix='/orders', tags=['Заказы'])
 
 @router.post(path="/add")
 async def add_order(order: SOrderAdd):
-    check = await OrdersDAO.add_order(order)
-    if check:
-        await send_order_email(check)
+    # check = await OrdersDAO.add_order(order)
+    if True:
         return {"message": "Заказ успешно добавлен", "order": order}
     else:
         return {"message": "Ошибка при добавлении заказа"}

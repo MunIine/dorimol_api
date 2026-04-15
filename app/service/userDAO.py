@@ -35,7 +35,7 @@ class UserDAO(BaseDAO):
             user_data["orders_amount"] = orders_amount
             user_data["discount_tiers"] = DiscountConst.discount_tiers
             user_data["current_discount"] = max(
-                (tier.percent for tier in DiscountConst.discount_tiers if orders_amount >= tier.orders_required),
+                (tier["percent"] for tier in DiscountConst.discount_tiers if orders_amount >= tier["orders_required"]),
                 default=0
             )
 

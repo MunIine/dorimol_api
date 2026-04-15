@@ -1,8 +1,6 @@
 from enum import Enum
 from sqlalchemy import asc, case, desc
 
-from app.schema import SDiscountTier
-
 class ProductConst:
     statuses = ["default", "new", "sale"]
     default_status = "default"
@@ -32,6 +30,9 @@ class OrderConst:
     statuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
     default_status = "pending"
 
+class DeliveryTypes(str, Enum):
+    PICKUP = "pickup"
+    COURIER = "courier"
 class AvatarUploadConst:
     max_size = 5 * 1024 * 1024 # 5MB
     MAGIC_BYTES = {
@@ -52,7 +53,7 @@ class AvatarUploadConst:
     
 class DiscountConst:
     discount_tiers = [
-        SDiscountTier(percent=3, orders_required=3),
-        SDiscountTier(percent=5, orders_required=6),
-        SDiscountTier(percent=7, orders_required=10),
+        {"percent": 3, "orders_required": 3},
+        {"percent": 5, "orders_required": 6},
+        {"percent": 7, "orders_required": 10},
     ]
