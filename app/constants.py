@@ -29,6 +29,7 @@ class SortingProductConst(str, Enum):
 class OrderConst:
     statuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
     default_status = "pending"
+    orders_by_user_limit_default = 25
 
 class DeliveryTypes(str, Enum):
     PICKUP = "pickup"

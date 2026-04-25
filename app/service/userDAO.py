@@ -51,7 +51,6 @@ class UserDAO(BaseDAO):
                     await session.flush()
                     await session.commit()
                 except SQLAlchemyError as e:
-                    await session.rollback()
                     raise e
                 
                 return user
@@ -72,7 +71,6 @@ class UserDAO(BaseDAO):
                     await session.flush()
                     await session.commit()
                 except SQLAlchemyError as e:
-                    await session.rollback()
                     raise e
                 
                 return user

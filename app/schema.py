@@ -136,3 +136,10 @@ class SUserFull(SUser):
     orders_amount: int = Field(..., description="Количество заказов пользователя")
     current_discount: int = Field(..., description="Текущая скидка пользователя")
     discount_tiers: list[SDiscountTier] = Field(..., description="Уровни скидок")
+
+class SCurrentUserOrders(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    orders: list[SOrderPreview] = Field(..., description="Список заказов текущего пользователя")
+    offset: int = Field(..., description="Смещение для пагинации")
+    next_offset: Optional[int] = Field(None, description="Следующее смещение для пагинации")
+    limit: int = Field(..., description="Лимит для пагинации")

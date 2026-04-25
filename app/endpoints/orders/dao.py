@@ -20,6 +20,7 @@ class OrdersDAO(BaseDAO):
         async with async_session_maker() as session:
             async with session.begin():
                 delivery_type = DeliveryTypes(order_in.delivery_type)
+                total_price = Decimal("0")
                 order = Order(
                     user_id = user.uid,
                     delivery_type = delivery_type,
@@ -27,13 +28,18 @@ class OrdersDAO(BaseDAO):
                     phone_number = user.phone_number,
                     comment = order_in.comment
                 )
-                if delivery_type is DeliveryTypes.COURIER:
+                if delivery_type == DeliveryTypes.COURIER:
                     order.city = order_in.city
                     order.address = order_in.address
-                total_price = Decimal("0")
+
+                product_ids = [item.product_id for item in order_in.items]
+                products_result = await session.execute(
+                    select(Product).where(Product.id.in_(product_ids))
+                )
+                products = {p.id: p for p in products_result.scalars().all()}
+
                 for item_in in order_in.items:
-                    product = await session.execute(select(Product).filter(Product.id == item_in.product_id))
-                    product = product.scalar_one_or_none()
+                    product = products.get(item_in.product_id)
                     if product is None:
                         raise HTTPException(
                             status_code=404,
@@ -53,11 +59,11 @@ class OrdersDAO(BaseDAO):
                         quantity = item_in.quantity,
                         item_price = item_price
                     ))
-
-                order.total_price = total_price * Decimal(str(1 - user.current_discount / 100))
+                    
+                discount_factor = (Decimal("100") - Decimal(str(user.current_discount))) / Decimal("100")
+                order.total_price = total_price * discount_factor
                 
                 if order.total_price != order_in.expected_total_price:
-                    await session.rollback()
                     raise HTTPException(
                         status_code=409,
                         detail="Price changed. Please refresh page and try again"
@@ -69,22 +75,28 @@ class OrdersDAO(BaseDAO):
                     await session.flush()
                     await session.commit()
                 except SQLAlchemyError as e:
-                    await session.rollback()
                     raise e
 
                 return order
 
     @classmethod
-    async def get_orders_by_user(cls, user_uid: str) -> list[SOrderPreview]:
+    async def get_orders_by_user(cls, user_uid: str, limit: int, offset: int) -> tuple[list[SOrderPreview], int | None]:
         async with async_session_maker() as session:
+            next_offset = None
+
             result = await session.execute(
                 select(Order)
                 .where(Order.user_id == user_uid)
                 .order_by(Order.created_at.desc())
-                .limit(5) # TODO: remove limit
+                .limit(limit+1)
+                .offset(offset)
             )
-            orders = list(map(lambda order: SOrderPreview.model_validate(order), result.scalars().unique().all()))
-            return orders
+            orders = result.scalars().unique().all()
+            orders_paginated = list(map(lambda order: SOrderPreview.model_validate(order), orders[:limit]))
+            if len(orders) > limit:
+                next_offset = offset + limit
+
+            return orders_paginated, next_offset
 
     @classmethod
     async def get_order_by_id(cls, order_id: UUID, user_id: str):
