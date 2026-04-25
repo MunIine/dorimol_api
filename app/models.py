@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from sqlalchemy import UUID, Enum as sqlEnum, Numeric
 from sqlalchemy import Text, Table, Column, ForeignKey, String,  text
@@ -97,12 +98,12 @@ class Order(Base):
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.uid"), nullable=False)
     status: Mapped[str] = mapped_column(sqlEnum(*OrderConst.statuses, name="order_status"), nullable=False, server_default=text(f"\'{OrderConst.default_status}\'"))
-    delivery_type: Mapped[DeliveryTypes] = mapped_column(sqlEnum(DeliveryTypes, name="delivery_types"), nullable=False) #Если что тут ловить
+    delivery_type: Mapped[DeliveryTypes] = mapped_column(sqlEnum(DeliveryTypes, name="delivery_types", values_callable=lambda x: [e.value for e in x]), nullable=False) #Если что тут ловить
     full_name: Mapped[str] = mapped_column(nullable=False)
     phone_number: Mapped[str] = mapped_column(nullable=False)
-    city: Mapped[str] = mapped_column(Text, nullable=True)
-    address: Mapped[str] = mapped_column(Text, nullable=True)
-    comment: Mapped[str] = mapped_column(Text, nullable=True)
+    city: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     total_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     user = relationship("User")
@@ -117,7 +118,7 @@ class OrderItem(Base):
     order_id: Mapped[UUID] = mapped_column(ForeignKey("orders.id"), nullable=False)
     product_id: Mapped[str] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[float] = mapped_column(nullable=False)
-    item_price: Mapped[float] = mapped_column(nullable=False)
+    item_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     order = relationship("Order", back_populates="items")
     product = relationship("Product")

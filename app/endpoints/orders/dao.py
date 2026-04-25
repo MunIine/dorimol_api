@@ -1,12 +1,14 @@
+from decimal import Decimal
 from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
+from app.constants import DeliveryTypes
 from app.dao import BaseDAO
 from app.database import async_session_maker
 from app.models import Order, OrderItem, Product
-from app.schema import SOrder, SOrderAdd, SOrderPreview
+from app.schema import SOrder, SOrderAdd, SOrderPreview, SUserFull
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -14,43 +16,55 @@ class OrdersDAO(BaseDAO):
     model = Order
 
     @classmethod
-    async def add_order(cls, order_in: SOrderAdd):
+    async def add_order(cls, order_in: SOrderAdd, user: SUserFull):
         async with async_session_maker() as session:
             async with session.begin():
-                total_price = 0
+                delivery_type = DeliveryTypes(order_in.delivery_type)
                 order = Order(
-                    full_name=order_in.full_name,
-                    phone_number=order_in.phone_number,
-                    delivery_address=order_in.delivery_address,
-                    comment=order_in.comment,
+                    user_id = user.uid,
+                    delivery_type = delivery_type,
+                    full_name = user.name,
+                    phone_number = user.phone_number,
+                    comment = order_in.comment
                 )
+                if delivery_type is DeliveryTypes.COURIER:
+                    order.city = order_in.city
+                    order.address = order_in.address
+                total_price = Decimal("0")
                 for item_in in order_in.items:
                     product = await session.execute(select(Product).filter(Product.id == item_in.product_id))
-                    product = product.scalar_one()
-
-                    isWholesalePrice = item_in.quantity >= product.wholesale_start_quantity
-
-                    if (product.price != item_in.item_price and not isWholesalePrice) or (
-                        product.wholesale_price != item_in.item_price and isWholesalePrice
-                    ):
-                        await session.rollback()
+                    product = product.scalar_one_or_none()
+                    if product is None:
                         raise HTTPException(
-                            status_code=409,
-                            detail="Цена изменилась. Пожалуйста, обновите страницу и повторите заказ."
+                            status_code=404,
+                            detail="Product not found"
                         )
 
-                    order_items = OrderItem(
-                        product_id=item_in.product_id,
-                        quantity=item_in.quantity,
-                        item_price=product.price if not isWholesalePrice else product.wholesale_price
+                    item_price = Decimal("0")
+                    if item_in.quantity >= product.wholesale_start_quantity: # wholesale price
+                        item_price = Decimal(str(product.wholesale_price)) * Decimal(str(item_in.quantity))
+                    else:
+                        item_price = Decimal(str(product.price)) * Decimal(str(item_in.quantity))
+                    
+                    total_price += item_price
+
+                    order.items.append(OrderItem(
+                        product_id = item_in.product_id,
+                        quantity = item_in.quantity,
+                        item_price = item_price
+                    ))
+
+                order.total_price = total_price * Decimal(str(1 - user.current_discount / 100))
+                
+                if order.total_price != order_in.expected_total_price:
+                    await session.rollback()
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Price changed. Please refresh page and try again"
                     )
-
-                    total_price += order_items.item_price * item_in.quantity
-                    order.items.append(order_items)
-
-                order.total_price = total_price
-
+                
                 session.add(order)
+
                 try:
                     await session.flush()
                     await session.commit()

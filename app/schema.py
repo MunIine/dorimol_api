@@ -76,6 +76,7 @@ class SOrderPreview(BaseModel):
     id: UUID = Field(..., description="ID заказа")
     status: str = Field(..., description="Статус заказа")
     total_price: float = Field(..., description="Общая стоимость заказа")
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
     city: Optional[str] = Field(None, description="Город доставки")
     address: Optional[str] = Field(None, description="Адрес доставки")
     created_at: datetime = Field(..., description="Дата создания заказа")
@@ -98,6 +99,7 @@ class SOrder(BaseModel):
     address: Optional[str] = Field(None, description="Адрес доставки")
     comment: Optional[str] = Field(None, description="Комментарий к заказу")
     total_price: float = Field(..., description="Общая стоимость заказа")
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
     items: list[SOrderItem] = Field(..., description="Список товаров в заказе")
     created_at: datetime = Field(..., description="Дата создания заказа")
 
