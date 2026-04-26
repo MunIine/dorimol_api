@@ -66,6 +66,8 @@ class UserDAO(BaseDAO):
                 
                 for key, value in data.items():
                     setattr(user, key, value)
+
+                setattr(user, "updated_at", func.now())
                 
                 try:
                     await session.flush()
