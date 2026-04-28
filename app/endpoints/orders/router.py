@@ -17,6 +17,11 @@ async def add_order(
 ):
     user = await user_service.get_current_user_full(authorization)
     new_order = await OrdersDAO.add_order(order, user)
+
+    # TODO: make orders shown to admin
+    # Email deprecated
+    # await send_order_email(new_order)
+    
     return {"id": new_order.id}
 
 @router.get(path="/{order_id}", summary="Получение заказа по ID", response_model=SOrder)
