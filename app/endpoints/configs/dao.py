@@ -11,4 +11,4 @@ class ConfigDAO(BaseDAO):
         async with async_session_maker() as session:
             result = await session.execute(select(cls.model))
             configs = result.scalars().all()
-            return {config.id: config.value for config in configs}
+            return {config.key: config.value for config in configs}

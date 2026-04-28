@@ -2,6 +2,7 @@ from datetime import timedelta
 import requests
 from sqlalchemy import select
 from app.config import get_email_api_key, get_email_from, get_email_to
+from app.constants import DeliveryTypes
 from app.database import async_session_maker
 from app.models import Order, Product
 
@@ -10,8 +11,9 @@ async def send_order_email(order: Order):
 Клиент: {order.full_name}
 Телефон: {order.phone_number}
 """
-    if order.delivery_address is not None:
-        text += f'Адрес: {order.delivery_address}\n'
+    if order.delivery_type == DeliveryTypes.COURIER:
+        text += f'Город: {order.city}\n'
+        text += f'Адрес: {order.address}\n'
 
     if order.comment is not None:
         text += f'Комментарий: {order.comment}\n'
@@ -37,7 +39,7 @@ async def send_order_email(order: Order):
           auth=("api", get_email_api_key()),
           data={
             "from": f"Orders email <{get_email_from()}>",
-            "to": f"EcoBaza <{get_email_to()}>",
+            "to": f"Dori <{get_email_to()}>",
               "subject": f"Заказ #{order.id}",
               "text": text.strip()
             }

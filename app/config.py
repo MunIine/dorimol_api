@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     EMAIL_API_KEY: str
     EMAIL_FROM: str
     EMAIL_TO: str
+    JWT_SECRET_KEY: str
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
     )
@@ -31,3 +32,6 @@ def get_email_from():
 
 def get_email_to():
     return settings.EMAIL_TO
+
+def get_jwt_secret_key():
+    return settings.JWT_SECRET_KEY

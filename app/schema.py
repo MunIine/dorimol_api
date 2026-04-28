@@ -1,6 +1,9 @@
 from datetime import datetime
+from decimal import Decimal
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
+from app.constants import DeliveryTypes
 
 class SProduct(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -49,14 +52,94 @@ class SFeedback(BaseModel):
     updated_at: datetime = Field(..., description="Дата обновления отзыва")
     created_at: datetime = Field(..., description="Дата создания отзыва")
 
+class SDiscountTier(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    percent: int
+    orders_required: int
+
 class SOrderAdd(BaseModel):
-    full_name: str = Field(..., description="ФИО заказчика")
-    phone_number: str = Field(..., description="Телефон заказчика")
-    delivery_address: Optional[str] = Field(None, description="Адрес доставки")
+    model_config = ConfigDict(from_attributes=True)
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
+    expected_total_price: Decimal = Field(..., description="Ожидаемая итоговая сумма")
+    city: Optional[str] = Field(None, description="Город доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
     comment: Optional[str] = Field(None, description="Комментарий к заказу")
     items: list["SOrderItemAdd"] = Field(..., description="Список товаров в заказе")
 
 class SOrderItemAdd(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    product_id: str = Field(..., description="ID продукта")
+    quantity: float = Field(..., description="Количество", gt=0)
+
+class SOrderPreview(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID = Field(..., description="ID заказа")
+    status: str = Field(..., description="Статус заказа")
+    total_price: float = Field(..., description="Общая стоимость заказа")
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
+    city: Optional[str] = Field(None, description="Город доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
+    created_at: datetime = Field(..., description="Дата создания заказа")
+
+class SOrderItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int = Field(..., description="ID позиции заказа")
     product_id: str = Field(..., description="ID продукта")
     quantity: float = Field(..., description="Количество")
     item_price: float = Field(..., description="Цена за единицу товара")
+
+
+class SOrder(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID = Field(..., description="ID заказа")
+    status: str = Field(..., description="Статус заказа")
+    full_name: str = Field(..., description="ФИО заказчика")
+    phone_number: str = Field(..., description="Телефон заказчика")
+    city: Optional[str] = Field(None, description="Город доставки")
+    address: Optional[str] = Field(None, description="Адрес доставки")
+    comment: Optional[str] = Field(None, description="Комментарий к заказу")
+    total_price: float = Field(..., description="Общая стоимость заказа")
+    delivery_type: DeliveryTypes = Field(..., description="Тип доставки")
+    items: list[SOrderItem] = Field(..., description="Список товаров в заказе")
+    created_at: datetime = Field(..., description="Дата создания заказа")
+
+class SAuthFirebaseIdToken(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id_token: str = Field(..., description="Id токен")
+
+class STokens(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    access_token: str = Field(..., description="JWT токен")
+    refresh_token: str = Field(..., description="Refresh токен")
+
+class SUser(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    uid: str = Field(..., description="Уникальный идентификатор пользователя")
+    role: str = Field(..., description="Роль пользователя: user, admin")
+    onboarding_completed: bool = Field(..., description="Завершил ли пользователь онбординг")
+
+class SUserUpdate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    role: Optional[str] = Field(None, description="Роль пользователя: user, admin")
+    onboarding_completed: Optional[bool] = Field(None, description="Завершил ли пользователь онбординг")
+    name: Optional[str] = Field(None, description="Имя пользователя")
+    phone_number: Optional[str] = Field(None, description="Номер телефона пользователя")
+    city: Optional[str] = Field(None, description="Город пользователя")
+    address: Optional[str] = Field(None, description="Адрес пользователя")
+    
+class SUserFull(SUser):
+    image_url: Optional[str] = Field(None, description="URL изображения пользователя на сервере")
+    name: Optional[str] = Field(None, description="Имя пользователя")
+    phone_number: str = Field(..., description="Номер телефона пользователя")
+    city: Optional[str] = Field(None, description="Город пользователя")
+    address: Optional[str] = Field(None, description="Адрес пользователя")
+    orders_amount: int = Field(..., description="Количество заказов пользователя")
+    current_discount: int = Field(..., description="Текущая скидка пользователя")
+    discount_tiers: list[SDiscountTier] = Field(..., description="Уровни скидок")
+
+class SCurrentUserOrders(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    orders: list[SOrderPreview] = Field(..., description="Список заказов текущего пользователя")
+    offset: int = Field(..., description="Смещение для пагинации")
+    next_offset: Optional[int] = Field(None, description="Следующее смещение для пагинации")
+    limit: int = Field(..., description="Лимит для пагинации")

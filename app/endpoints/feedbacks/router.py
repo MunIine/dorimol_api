@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.feedbacks.dao import FeedbackDAO
+from app.endpoints.feedbacks.dao import FeedbackDAO
 from app.schema import SFeedback
 
 router = APIRouter(prefix='/feedbacks', tags=['Отзывы'])
