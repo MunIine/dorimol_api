@@ -1,4 +1,11 @@
-fastapi[all]
-sqlalchemy
+fastapi
+uvicorn[standard]
+SQLAlchemy
+asyncpg
 alembic
+aiofiles
 Pillow
+firebase-admin
+PyJWT
+requests
+pydantic-settings
