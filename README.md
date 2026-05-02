@@ -1,75 +1,73 @@
 [![Frontend](https://img.shields.io/badge/Frontend-Flutter-1181a6?&logo=flutter&logoColor=white)](https://github.com/MunIine/dorimol) [![Python](https://img.shields.io/badge/Python-3.12-356fa0?&logo=python&logoColor=white)](https://www.python.org) [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-059487?&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-4481ae?&logo=postgresql&logoColor=white)](https://www.postgresql.org) 
 
 # Dorimol API
-
-Backend API онлайн-магазина для мобильного приложения Dorimol (Flutter).  
-Сервис отвечает за авторизацию пользователей, каталог товаров, отзывы, оформление заказов и выдачу клиентской конфигурации.
-
-## Ключевой функционал
-
-- Авторизация через Firebase ID Token (`/auth/firebase`) с выдачей пары JWT (`access_token`, `refresh_token`).
-- Проверка и обновление токенов (`/auth/validate`, `/auth/refresh`).
-- Работа с профилем пользователя: чтение текущего профиля, обновление данных, загрузка аватара.
-- Каталог: получение списка категорий и товаров с фильтрами/сортировкой, детальная карточка товара.
-- Отзывы: получение отзывов по товару.
-- Заказы: создание заказа, получение заказа по ID, история заказов пользователя.
-- Ценообразование в заказах: расчет с учетом оптовой цены и персональной скидки пользователя.
-- Клиентская конфигурация: получение ключ-значение настроек из БД (`/config/`).
-
-## Технологический стек
-
-- Язык: `Python 3`
+ 
+Backend API for the Dorimol (Flutter) mobile e-commerce app.  
+The service handles user authentication, product catalog, reviews, order processing, and client configuration delivery.
+ 
+## Key Features
+ 
+- Authentication via Firebase ID Token (`/auth/firebase`) with JWT pair issuance (`access_token`, `refresh_token`).
+- Token validation and refresh (`/auth/validate`, `/auth/refresh`).
+- User profile management: read current profile, update data, upload avatar.
+- Catalog: fetch categories and products with filters/sorting, detailed product card.
+- Reviews: fetch reviews by product.
+- Orders: create an order, get order by ID, user order history.
+- Order pricing: calculation based on wholesale price and personal user discount.
+- Client configuration: fetch key-value settings from the DB (`/config/`).
+## Tech Stack
+ 
+- Language: `Python 3`
 - Web framework: `FastAPI`
-- ORM / работа с БД: `SQLAlchemy` (async)
-- База данных: `PostgreSQL`
-- Миграции: `Alembic`
-- Валидация и схемы: `Pydantic`
-- Аутентификация:
-  - внешний провайдер: `Firebase Admin SDK` (проверка ID token),
-  - внутренние токены: `JWT` (`HS256`, bearer-схема)
-- Обработка изображений: `Pillow` (аватары)
-- Контейнеризация: `docker-compose` (поднят только PostgreSQL)
+- ORM / database: `SQLAlchemy` (async)
+- Database: `PostgreSQL`
+- Migrations: `Alembic`
+- Validation & schemas: `Pydantic`
+- Authentication:
+  - External provider: `Firebase Admin SDK` (ID token verification)
+  - Internal tokens: `JWT` (`HS256`, bearer scheme)
+- Image processing: `Pillow` (avatars)
+- Containerization: `docker-compose` (PostgreSQL only)
 
-## Архитектура
+## Architecture
 
 ```text
 Dorimol_API/
 ├── app/
-│   ├── endpoints/              # HTTP-роуты и DAO по доменам (auth, user, products, orders и др.)
-│   ├── service/                # Бизнес-логика (user/token/image сервисы, user DAO)
-│   ├── migration/              # Конфигурация и ревизии Alembic
-│   ├── main.py                 # Точка входа FastAPI, подключение роутеров и статики
-│   ├── config.py               # Загрузка настроек из .env
-│   ├── database.py             # Инициализация async SQLAlchemy engine/session
-│   ├── models.py               # ORM-модели (users, products, orders, ...)
-│   ├── schema.py               # Pydantic-схемы запросов/ответов
-│   ├── dependencies.py         # DI-зависимости FastAPI
-│   ├── constants.py            # Константы домена (статусы, сортировки, скидки)
-│   ├── dao.py                  # Базовый DAO
-│   └── email.py                # Отправка email уведомлений о заказах
-├── .env.example                # Пример переменных окружения
-├── requirements.txt            # Python-зависимости
-├── alembic.ini                 # Конфигурация Alembic
-├── docker-compose.yml          # Контейнер PostgreSQL
+│   ├── endpoints/              # HTTP routes and DAOs by domain (auth, user, products, orders, etc.)
+│   ├── service/                # Business logic (user/token/image services, user DAO)
+│   ├── migration/              # Alembic configuration and revisions
+│   ├── main.py                 # FastAPI entry point, router and static file registration
+│   ├── config.py               # Settings loader from .env
+│   ├── database.py             # Async SQLAlchemy engine/session initialization
+│   ├── models.py               # ORM models (users, products, orders, ...)
+│   ├── schema.py               # Pydantic request/response schemas
+│   ├── dependencies.py         # FastAPI DI dependencies
+│   ├── constants.py            # Domain constants (statuses, sorting, discounts)
+│   ├── dao.py                  # Base DAO
+│   └── email.py                # Order notification emails
+├── .env.example                # Environment variables example
+├── requirements.txt            # Python dependencies
+├── alembic.ini                 # Alembic configuration
+├── docker-compose.yml          # PostgreSQL container
 ├── LICENSE.md
 └── README.md
 ```
 
 ## API
-
-- Локальный базовый URL: `http://localhost:8000`
+ 
+- Local base URL: `http://localhost:8000`
 - Swagger UI: `http://localhost:8000/docs`
-- Формат авторизации защищенных методов:
+- Authorization format for protected endpoints:
+  ```http
+  Authorization: Bearer <jwt_token>
+  ```
 
-```http
-Authorization: Bearer <jwt_token>
-```
-
-### Группы эндпоинтов
-
-#### Публичные (без JWT)
-
-- Сервис:
+### Endpoint Groups
+ 
+#### Public (no JWT required)
+ 
+- Service:
   - `GET /`
 - Auth:
   - `POST /auth/firebase`
@@ -80,13 +78,12 @@ Authorization: Bearer <jwt_token>
   - `GET /feedbacks/{product_id}`
 - Config:
   - `GET /config/`
-- Статические файлы:
+- Static files:
   - `GET /media/categories/*`
   - `GET /media/products/*`
   - `GET /media/avatars/*`
-
-#### Приватные (требуется Bearer JWT)
-
+#### Private (Bearer JWT required)
+ 
 - Auth:
   - `POST /auth/refresh`
   - `GET /auth/validate`
@@ -99,37 +96,35 @@ Authorization: Bearer <jwt_token>
   - `POST /orders/add`
   - `GET /orders/{order_id}`
 
-## Содержимое таблицы config
+## Config Table Contents
 
-| Ключ              | Возможное значение      | Назначение                                   |
+| Key               | Example Value           | Description                                  |
 | ----------------- | ----------------------- | -------------------------------------------- |
-| `min_app_version` | `"x.x.x"`               | Минимальная поддерживаемая версия приложения |
-| `maintenance_mode`| `bool`                  | Режим технического обслуживания              |
-| `delivery_cities` | `list[str]`             | Города возможной доставки                    |
+| `min_app_version` | `"x.x.x"`               | Minimum supported app version                |
+| `maintenance_mode`| `bool`                  | Maintenance mode flag                        |
+| `delivery_cities` | `list[str]`             | Cities available for delivery                |
 
-## Переменные окружения
-
-Все переменные читаются из `.env` (см. `.env.example`).
-
-
-| Переменная       | Назначение              |
+## Environment Variables
+ 
+All variables are read from `.env` (see `.env.example`).
+ 
+| Variable         | Description             |
 | ---------------- | ----------------------- |
-| `DB_USER`        | Пользователь PostgreSQL |
-| `DB_PASSWORD`    | Пароль PostgreSQL       |
-| `DB_HOST`        | Хост PostgreSQL         |
-| `DB_PORT`        | Порт PostgreSQL         |
-| `DB_NAME`        | Имя базы данных         |
-| `EMAIL_API_KEY`  | API-ключ Mailgun        |
-| `EMAIL_FROM`     | Email отправителя       |
-| `EMAIL_TO`       | Email получателя        |
-| `JWT_SECRET_KEY` | Секрет для подписи JWT  |
+| `DB_USER`        | PostgreSQL user         |
+| `DB_PASSWORD`    | PostgreSQL password     |
+| `DB_HOST`        | PostgreSQL host         |
+| `DB_PORT`        | PostgreSQL port         |
+| `DB_NAME`        | Database name           |
+| `EMAIL_API_KEY`  | Mailgun API key         |
+| `EMAIL_FROM`     | Sender email address    |
+| `EMAIL_TO`       | Recipient email address |
+| `JWT_SECRET_KEY` | JWT signing secret      |
+ 
+Additionally, a `serviceAccountKey.json` file is required in the project root for Firebase Admin SDK initialization.
 
-
-Дополнительно требуется файл `serviceAccountKey.json` в корне проекта для инициализации Firebase Admin SDK.
-
-## Запуск локально
-
-### 1) Подготовка окружения
+## Running Locally
+ 
+### 1) Set up the environment
 
 ```bash
 python -m venv .venv
@@ -139,38 +134,38 @@ source .venv/bin/activate
 .venv\Scripts\Activate.ps1
 ```
 
-### 2) Установка зависимостей
+### 2) Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3) Настройка переменных окружения
+### 3) Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Заполните значения в `.env` и добавьте `serviceAccountKey.json`.
-
-### 4) Запуск PostgreSQL
+Fill in the values in `.env` and add `serviceAccountKey.json`.
+ 
+### 4) Start PostgreSQL
 
 ```bash
 docker-compose up -d
 ```
 
-### 5) Применение миграций
+### 5) Apply migrations
 
 ```bash
 alembic upgrade head
 ```
 
-### 6) Запуск API
+### 6) Start the API
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Лицензия
-
-Проект распространяется по лицензии **All Rights Reserved**. Подробные условия: `LICENCE.md`.
+## License
+ 
+The project is distributed under the **All Rights Reserved** license. Full terms: `LICENCE.md`.
