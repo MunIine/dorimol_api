@@ -27,7 +27,7 @@ The service handles user authentication, product catalog, reviews, order process
   - External provider: `Firebase Admin SDK` (ID token verification)
   - Internal tokens: `JWT` (`HS256`, bearer scheme)
 - Image processing: `Pillow` (avatars)
-- Containerization: `docker-compose` (PostgreSQL only)
+- Containerization: `docker`
 
 ## Architecture
 
@@ -46,18 +46,22 @@ Dorimol_API/
 │   ├── constants.py            # Domain constants (statuses, sorting, discounts)
 │   ├── dao.py                  # Base DAO
 │   └── email.py                # Order notification emails
+├── nginx/
+│   └── nginx.conf              # Nginx configuration
 ├── .env.example                # Environment variables example
 ├── requirements.txt            # Python dependencies
 ├── alembic.ini                 # Alembic configuration
-├── docker-compose.yml          # PostgreSQL container
+├── docker-compose.yml          # Container
+├── Dockerfile                  # FastAPI application image
 ├── LICENSE.md
 └── README.md
 ```
 
 ## API
  
-- Local base URL: `http://localhost:8000`
-- Swagger UI: `http://localhost:8000/docs`
+- Base dev URL: `http://localhost:8000`
+- Base full docker stack URL: `http://localhost`
+- Swagger UI: `http://localhost/docs` (or `:8000/docs` in local dev)
 - Authorization format for protected endpoints:
   ```http
   Authorization: Bearer <jwt_token>
@@ -112,19 +116,26 @@ All variables are read from `.env` (see `.env.example`).
 | ---------------- | ----------------------- |
 | `DB_USER`        | PostgreSQL user         |
 | `DB_PASSWORD`    | PostgreSQL password     |
-| `DB_HOST`        | PostgreSQL host         |
-| `DB_PORT`        | PostgreSQL port         |
+| `DB_HOST`        | PostgreSQL host*        |
+| `DB_PORT`        | PostgreSQL port**       |
 | `DB_NAME`        | Database name           |
 | `EMAIL_API_KEY`  | Mailgun API key         |
 | `EMAIL_FROM`     | Sender email address    |
 | `EMAIL_TO`       | Recipient email address |
 | `JWT_SECRET_KEY` | JWT signing secret      |
  
+ \* `localhost` for local dev, `postgres` when running the API in Docker
+ ** `5433` for local dev (mapped), `5432` when running the API in Docker
+
 Additionally, a `serviceAccountKey.json` file is required in the project root for Firebase Admin SDK initialization.
 
-## Running Locally
+## Running the Project
+
+There are two ways to run this project: locally with only the database in Docker (faster iteration for development), or fully containerized (full docker stack)
+
+### Local development
  
-### 1) Set up the environment
+#### 1) Set up the environment
 
 ```bash
 python -m venv .venv
@@ -134,13 +145,13 @@ source .venv/bin/activate
 .venv\Scripts\Activate.ps1
 ```
 
-### 2) Install dependencies
+#### 2) Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3) Configure environment variables
+#### 3) Configure environment variables
 
 ```bash
 cp .env.example .env
@@ -148,24 +159,42 @@ cp .env.example .env
 
 Fill in the values in `.env` and add `serviceAccountKey.json`.
  
-### 4) Start PostgreSQL
+#### 4) Start PostgreSQL
 
 ```bash
-docker-compose up -d
+docker compose up -d postgres
 ```
 
-### 5) Apply migrations
+#### 5) Apply migrations
 
 ```bash
 alembic upgrade head
 ```
 
-### 6) Start the API
+#### 6) Start the API
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+##### The API is now available on: http://localhost:8000
+
+### Full Docker Stack
+
+#### 1) Build and start all services
+
+```bash
+docker compose up --build -d
+```
+
+####  2) Apply migrations
+
+```bash
+docker compose exec api alembic upgrade head
+```
+
+##### The API is now available through Nginx: http://localhost
+
 ## License
  
-The project is distributed under the **All Rights Reserved** license. Full terms: `LICENCE.md`.
+The project is distributed under the **All Rights Reserved** license. Full terms: `LICENSE.md`.
