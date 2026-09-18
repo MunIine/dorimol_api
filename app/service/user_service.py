@@ -78,6 +78,8 @@ class UserService:
         
         try:
             user = await UserDAO.get_user(payload['uid'])
+            if user is None:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
             return self.token_service.generate_tokens(SUser.model_validate(user))
         except KeyError:
             raise HTTPException(status_code=401, detail="Invalid token payload")

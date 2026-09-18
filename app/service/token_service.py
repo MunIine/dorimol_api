@@ -6,7 +6,7 @@ import time
 from app.schema import STokens, SUser
 
 class TokenService:
-    def generate_access_token(self, user: SUser):
+    def _generate_access_token(self, user: SUser):
         now = int(time.time())
         payload = {
             "uid": user.uid,
@@ -18,7 +18,7 @@ class TokenService:
         token = jwt.encode(payload, get_jwt_secret_key(), algorithm="HS256")
         return token
     
-    def generate_refresh_token(self, user: SUser):
+    def _generate_refresh_token(self, user: SUser):
         now = int(time.time())
         payload = {
             "uid": user.uid,
@@ -31,8 +31,8 @@ class TokenService:
         return token
     
     def generate_tokens(self, user: SUser):
-        access_token = self.generate_access_token(user)
-        refresh_token = self.generate_refresh_token(user)
+        access_token = self._generate_access_token(user)
+        refresh_token = self._generate_refresh_token(user)
         return STokens(
             access_token=access_token,
             refresh_token=refresh_token,
