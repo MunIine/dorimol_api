@@ -40,7 +40,10 @@ class UserService:
         data = update_body.model_dump(exclude_unset=True)
 
         uid = self.token_service.check_authorization(authorization)["uid"]
-        user = await UserDAO.update_user(uid, data)
+        try:
+            user = await UserDAO.update_user(uid, data)
+        except ValueError:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
 
         return SUser.model_validate(user)
     
@@ -48,7 +51,7 @@ class UserService:
         uid = self.token_service.check_authorization(authorization)["uid"]
         user = await UserDAO.get_user(uid)
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=401, detail="Invalid token payload")
 
         file = await avatar.read()
 

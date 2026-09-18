@@ -42,11 +42,11 @@ async def test_auth_firebase_new_user(async_client, test_user):
 
 @pytest.mark.asyncio
 @pytest.mark.api
-async def test_auth_firebase_existing_user(async_client, db_user):
+async def test_auth_firebase_existing_user(async_client, db_test_user):
     """Вход уже существующего пользователя: нового пользователя не создает, отдает токены."""
     mock_firebase_response = {
-        "uid": db_user.uid,
-        "phone_number": db_user.phone_number
+        "uid": db_test_user.uid,
+        "phone_number": db_test_user.phone_number
     }
 
     with patch("app.service.user_service.auth.verify_id_token", return_value=mock_firebase_response):
@@ -63,10 +63,10 @@ async def test_auth_firebase_existing_user(async_client, db_user):
 
 @pytest.mark.asyncio
 @pytest.mark.api
-async def test_auth_refresh_tokens_with_real_db(async_client, db_user):
+async def test_auth_refresh_tokens_with_real_db(async_client, db_test_user):
     """Обновление токенов с проверкой пользователя в реальной тестовой БД."""
     token_service = TokenService()
-    tokens = token_service.generate_tokens(SUser.model_validate(db_user))
+    tokens = token_service.generate_tokens(SUser.model_validate(db_test_user))
 
     response = await async_client.post(
         "/auth/refresh",
