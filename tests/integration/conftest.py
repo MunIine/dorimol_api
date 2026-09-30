@@ -111,6 +111,12 @@ def test_tokens(test_user, db_test_user):
     return tokens
 
 
+@pytest.fixture
+async def registered_user(db_test_user):
+    """Тестовый пользователь с заполненным именем для корректного оформления заказов."""
+    return await UserDAO.update_user(db_test_user.uid, {"name": "Иван Иванов"})
+
+
 # ==================== Catalog & Order Fixtures ====================
 
 
