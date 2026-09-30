@@ -10,7 +10,7 @@ import app.models  # Регистрация всех моделей в Base.meta
 from app.constants import DeliveryTypes, OrderConst
 from app.database import Base, async_session_maker
 from app.main import app
-from app.models import Category, Order, OrderItem, Product
+from app.models import Category, Feedback, Order, OrderItem, Product, Vendor
 from app.schema import SUser
 from app.service.token_service import TokenService
 from app.service.userDAO import UserDAO
@@ -121,18 +121,38 @@ async def registered_user(db_test_user):
 
 
 @pytest.fixture
-async def db_category():
-    """Создает тестовую категорию в БД."""
-    async with async_session_maker() as session:
-        async with session.begin():
-            category = Category(
-                name="Тестовая категория",
-                image_url="http://test/cat.png"
-            )
-            session.add(category)
-            await session.flush()
-            await session.commit()
-            return category
+def category_factory():
+    """Фабрика для создания тестовых категорий."""
+    counter = 0
+
+    async def _create_category(
+        name: str | None = None,
+        image_url: str = "http://test/cat.png",
+        enabled: bool = True,
+    ) -> Category:
+        nonlocal counter
+        counter += 1
+        cat_name = name or f"Тестовая категория {counter}"
+
+        async with async_session_maker() as session:
+            async with session.begin():
+                category = Category(
+                    name=cat_name,
+                    image_url=image_url,
+                    enabled=enabled,
+                )
+                session.add(category)
+                await session.flush()
+                await session.commit()
+                return category
+
+    return _create_category
+
+
+@pytest.fixture
+async def db_category(category_factory):
+    """Создает тестовую категорию в БД по умолчанию."""
+    return await category_factory(name="Тестовая категория")
 
 
 @pytest.fixture
@@ -144,11 +164,16 @@ def product_factory(db_category):
         product_id: str | None = None,
         category_id: int | None = None,
         name: str | None = None,
+        description: str | None = None,
         price: float = 100.0,
         wholesale_price: float = 80.0,
         wholesale_start_quantity: float = 5.0,
         stock: float = 100.0,
         image_url: str = "http://test/prod.png",
+        status: str = "default",
+        order_count: int = 0,
+        enabled: bool = True,
+        rating: float | None = None,
     ) -> Product:
         nonlocal counter
         counter += 1
@@ -162,11 +187,16 @@ def product_factory(db_category):
                     id=pid,
                     category_id=cat_id,
                     name=pname,
+                    description=description,
                     image_url=image_url,
                     price=price,
                     wholesale_price=wholesale_price,
                     wholesale_start_quantity=wholesale_start_quantity,
                     stock=stock,
+                    status=status,
+                    order_count=order_count,
+                    enabled=enabled,
+                    rating=rating,
                 )
                 session.add(product)
                 await session.flush()
