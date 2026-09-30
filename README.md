@@ -46,10 +46,15 @@ Dorimol_API/
 │   ├── constants.py            # Domain constants (statuses, sorting, discounts)
 │   ├── dao.py                  # Base DAO
 │   └── email.py                # Order notification emails
+├── tests/
+│   ├── conftest.py             # Root test fixtures
+│   ├── integration/            # API & DB integration tests
+│   └── unit/                   # Isolated unit tests
 ├── nginx/
 │   └── nginx.conf              # Nginx configuration
 ├── .env.example                # Environment variables example
 ├── requirements.txt            # Python dependencies
+├── pytest.ini                  # Pytest configuration
 ├── alembic.ini                 # Alembic configuration
 ├── docker-compose.yml          # Container
 ├── Dockerfile                  # FastAPI application image
@@ -177,7 +182,7 @@ alembic upgrade head
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-##### The API is now available on: http://localhost:8000
+The API is now available on: http://localhost:8000
 
 ### Full Docker Stack
 
@@ -194,6 +199,31 @@ docker compose exec api alembic upgrade head
 ```
 
 ##### The API is now available through Nginx: http://localhost
+
+## Testing
+    
+The test suite uses `pytest`, `pytest-asyncio`, and `httpx` (AsyncClient).
+Integration tests run against an ephemeral PostgreSQL container managed via `testcontainers`.
+    
+- **Unit tests** (`tests/unit/`): fast in-memory tests for business logic, JWT validation, image processing, and schemas.
+- **Integration tests** (`tests/integration/`): API and database flows covering auth, user profiles, catalog, orders, and configuration.
+
+### Running Tests
+
+Run all tests (requires Docker running for Testcontainers)
+```bash
+pytest
+```
+
+Run only unit tests (fast, no Docker required)
+``` bash
+pytest tests/unit
+```
+
+Run only integration tests
+``` bash
+pytest tests/integration
+```
 
 ## License
  
